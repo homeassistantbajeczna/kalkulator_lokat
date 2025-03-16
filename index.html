@@ -12,7 +12,6 @@
             font-family: 'Montserrat', sans-serif;
             padding: 10px;
         }
-        /* Styl dla logo */
         .logo-container {
             background-color: #e9ecef;
             padding: 15px;
@@ -120,7 +119,7 @@
             font-size: 0.9em;
             padding: 5px 20px;
             width: auto;
-            margin: 20px auto 0; /* Dodany odstęp od góry */
+            margin: 20px auto 0;
             display: block;
         }
         .btn-primary:hover {
@@ -168,7 +167,7 @@
         #advancedOptions {
             display: none;
             margin-top: 10px;
-            margin-bottom: 20px; /* Dodany odstęp od przycisku Oblicz */
+            margin-bottom: 20px;
         }
         .btn-toggle {
             cursor: pointer;
@@ -182,7 +181,6 @@
     </style>
 </head>
 <body>
-    <!-- Logo z nowym plikiem i linkiem -->
     <div class="logo-container">
         <a href="https://finance-brothers.pl">
             <img src="cropped-logo-FB-1.png" class="logo" alt="Finance Brothers Logo">
@@ -341,13 +339,20 @@
             const dataStart = new Date(document.getElementById("dataStart").value);
             const okres = parseInt(document.getElementById("okres").value) || 0;
             const typ = document.getElementById("okresTyp").value;
-            let dni = 0;
-            if (typ === "dni") dni = okres;
-            else if (typ === "miesiace") dni = okres * 30;
-            else if (typ === "lata") dni = okres * 365;
 
             const dataKoniec = new Date(dataStart);
-            dataKoniec.setDate(dataStart.getDate() + dni);
+
+            if (typ === "dni") {
+                dataKoniec.setDate(dataStart.getDate() + okres);
+            } else if (typ === "miesiace") {
+                dataKoniec.setMonth(dataStart.getMonth() + okres);
+            } else if (typ === "lata") {
+                dataKoniec.setFullYear(dataStart.getFullYear() + okres);
+            }
+
+            // Dodaj jeden dzień, aby data zakończenia była dniem po okresie lokaty
+            dataKoniec.setDate(dataKoniec.getDate() + 1);
+
             document.getElementById("dataKoniec").textContent = `Data zakończenia: ${dataKoniec.toLocaleDateString('pl-PL')}`;
             return dataKoniec;
         }
