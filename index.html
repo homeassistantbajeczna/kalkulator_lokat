@@ -1,1 +1,396 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Lokaty</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f5f6f5;
+            font-family: 'Montserrat', sans-serif;
+            padding: 10px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 30px auto 0;
+            background: #FFFFFF;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        .form-section h4, .result-section h4 {
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 1.2em;
+            color: #333333;
+            font-weight: 700;
+        }
+        .form-row {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 10px;
+            gap: 10px;
+            align-items: flex-start;
+        }
+        .form-group {
+            flex: 1;
+            min-width: 0;
+            max-width: 150px;
+        }
+        .form-label {
+            font-size: 0.7em;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+            color: #333333;
+        }
+        .form-control, .form-select, .form-range {
+            height: 22px;
+            font-size: 0.7em;
+            padding: 2px;
+            text-align: center;
+        }
+        .form-select {
+            max-width: 100px;
+            appearance: none;
+            background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAQ0lEQVR42mNgwAfKy8Q/Y//+Ii//3jVAYQzsIFyQ0dOaWq992zxcnN5+9NmyZACV40DmGhPZtzwUAxhUaoLntdha0DqQbtz4E9DzN6XgI0P2VYFlQrUwoQDIgbChLE/0awXiwV5rhugPX6A8BSsYFDqU+rEFdkGZA7+G9HMqaAU6l+0w+NdJD7ADhzhR/4KDZnWOw0QKrVqYc1G+1Dczfx8DR0uv+QJqDRvQxdizFAQAwsy39EZhAAAwAAJ4+Q1XFlAAAAABJRU5ErkJggg==') no-repeat right 5px center;
+        }
+        .form-range {
+            margin-top: 2px;
+            height: 8px;
+            background: #d3d3d3;
+            border-radius: 5px;
+        }
+        .form-range::-webkit-slider-thumb {
+            background: #C2B280;
+            border: none;
+            border-radius: 50%;
+            width: 12px;
+            height: 12px;
+            cursor: pointer;
+            -webkit-appearance: none;
+        }
+        .form-range::-moz-range-thumb {
+            background: #C2B280;
+            border: none;
+            border-radius: 50%;
+            width: 12px;
+            height: 12px;
+            cursor: pointer;
+        }
+        .input-group-text {
+            font-size: 0.7em;
+            padding: 2px 5px;
+        }
+        .sub-info {
+            font-size: 0.4em;
+            color: #333333;
+            margin-top: 2px;
+            text-align: left;
+        }
+        .checkbox-container {
+            display: flex;
+            justify-content: center;
+            margin-left: -20px;
+        }
+        input[type="checkbox"] {
+            accent-color: #C2B280;
+        }
+        .checkbox-label {
+            font-size: 0.6em;
+            font-weight: bold;
+        }
+        .btn-primary {
+            background-color: #C2B280;
+            border-color: #C2B280;
+            color: #000000;
+            font-size: 0.9em;
+            padding: 5px 20px;
+            width: auto;
+            margin: 0 auto;
+            display: block;
+        }
+        .btn-primary:hover {
+            background-color: #b0a070;
+            border-color: #b0a070;
+            color: #000000;
+        }
+        .result-section {
+            display: none;
+            padding: 10px;
+        }
+        .result-container {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .result-item {
+            font-size: 0.8em;
+            padding: 5px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            background: linear-gradient(90deg, #C2B280, #b0a070);
+            color: #000000;
+        }
+        .result-item span {
+            font-weight: 700;
+            font-size: 1.2em;
+        }
+        .btn-secondary {
+            background-color: #C2B280;
+            border-color: #C2B280;
+            color: #000000;
+            font-size: 0.9em;
+            padding: 5px 20px;
+            margin-top: 10px;
+        }
+        .btn-secondary:hover {
+            background-color: #b0a070;
+            border-color: #b0a070;
+            color: #000000;
+        }
+        #advancedOptions {
+            display: none;
+            margin-top: 10px;
+        }
+        .btn-toggle {
+            cursor: pointer;
+            font-size: 0.8em;
+            color: #007bff;
+            text-decoration: underline;
+            margin-bottom: 10px;
+            text-align: center;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-section" id="formSection">
+            <h4>Kalkulator Lokaty</h4>
+            <div class="form-container">
+                <form id="lokataForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="kwota" class="form-label">Kwota lokaty</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="kwota" min="1000" max="5000000" step="1000" value="10000">
+                                <span class="input-group-text">zł</span>
+                            </div>
+                            <input type="range" class="form-range" id="kwotaRange" min="1000" max="5000000" step="1000" value="10000">
+                            <div class="sub-info"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="okres" class="form-label">Długość umowy</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="okres" min="1" max="365" step="1" value="3">
+                                <select class="form-select" id="okresTyp">
+                                    <option value="dni">dni</option>
+                                    <option value="miesiace" selected>miesiące</option>
+                                    <option value="lata">lata</option>
+                                </select>
+                            </div>
+                            <input type="range" class="form-range" id="okresRange" min="1" max="365" step="1" value="3">
+                            <div class="sub-info" id="okresWartosc">Okres w dniach: 90</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="oprocentowanie" class="form-label">Oprocentowanie</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="oprocentowanie" min="0.1" max="25" step="0.1" value="4">
+                                <span class="input-group-text">%</span>
+                            </div>
+                            <input type="range" class="form-range" id="oprocentowanieRange" min="0.1" max="25" step="0.1" value="4">
+                            <div class="sub-info"></div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="dataStart" class="form-label">Data rozpoczęcia</label>
+                            <input type="date" class="form-control" id="dataStart" value="2025-03-16">
+                            <div class="sub-info" id="dataKoniec">Data zakończenia: -</div>
+                        </div>
+                    </div>
+                    <div class="checkbox-container">
+                        <div class="form-group">
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                                <input type="checkbox" id="wlaczZaawansowane" name="wlaczZaawansowane">
+                                <label for="wlaczZaawansowane" class="checkbox-label">Opcje zaawansowane</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="advancedOptions">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="podatek" class="form-label">Podatek</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="podatek" min="1" max="50" step="0.1" value="19">
+                                    <span class="input-group-text">%</span>
+                                </div>
+                                <input type="range" class="form-range" id="podatekRange" min="1" max="50" step="0.1" value="19">
+                                <div class="sub-info"></div>
+                            </div>
+                            <div class="form-group">
+                                <label for="kapitalizacja" class="form-label">Kapitalizacja odsetek</label>
+                                <select class="form-control" id="kapitalizacja">
+                                    <option value="koniec" selected>Na koniec okresu</option>
+                                    <option value="roczna">Roczna</option>
+                                    <option value="kwartalna">Kwartalna</option>
+                                    <option value="miesieczna">Miesięczna</option>
+                                    <option value="dzienna">Dzienne</option>
+                                </select>
+                                <div class="sub-info"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <button type="button" class="btn btn-primary" id="obliczBtn">Oblicz</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="result-section" id="resultSection">
+            <h4>Wyniki Lokaty</h4>
+            <button class="btn btn-secondary" onclick="showForm()">Powrót do edycji</button>
+            <div class="result-container">
+                <div class="result-item">Kwota lokaty: <span id="resultKwota">-</span> zł</div>
+                <div class="result-item">Odsetki brutto: <span id="resultOdsetkiBrutto">-</span> zł</div>
+                <div class="result-item">Podatek: <span id="resultPodatek">-</span> zł</div>
+                <div class="result-item">Odsetki netto: <span id="resultOdsetkiNetto">-</span> zł</div>
+                <div class="result-item">Całkowita kwota po zakończeniu: <span id="resultCalkowita">-</span> zł</div>
+                <div class="result-item">Data zakończenia: <span id="resultDataKoniec">-</span></div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById("dataStart").value = today;
 
+        document.getElementById("kwotaRange").addEventListener("input", function() {
+            document.getElementById("kwota").value = this.value;
+        });
+        document.getElementById("kwota").addEventListener("input", function() {
+            document.getElementById("kwotaRange").value = this.value;
+        });
+
+        document.getElementById("okresRange").addEventListener("input", function() {
+            document.getElementById("okres").value = this.value;
+            updateOkres();
+        });
+        document.getElementById("okres").addEventListener("input", function() {
+            document.getElementById("okresRange").value = this.value;
+            updateOkres();
+        });
+        document.getElementById("okresTyp").addEventListener("change", updateOkres);
+
+        document.getElementById("oprocentowanieRange").addEventListener("input", function() {
+            document.getElementById("oprocentowanie").value = this.value;
+        });
+        document.getElementById("oprocentowanie").addEventListener("input", function() {
+            document.getElementById("oprocentowanieRange").value = this.value;
+        });
+
+        document.getElementById("podatekRange").addEventListener("input", function() {
+            document.getElementById("podatek").value = this.value;
+        });
+        document.getElementById("podatek").addEventListener("input", function() {
+            document.getElementById("podatekRange").value = this.value;
+        });
+
+        document.getElementById("wlaczZaawansowane").addEventListener("change", function() {
+            document.getElementById("advancedOptions").style.display = this.checked ? "block" : "none";
+        });
+
+        document.getElementById("dataStart").addEventListener("change", updateDataKoniec);
+
+        function updateOkres() {
+            const okres = parseInt(document.getElementById("okres").value) || 0;
+            const typ = document.getElementById("okresTyp").value;
+            let dni = 0;
+            if (typ === "dni") dni = okres;
+            else if (typ === "miesiace") dni = okres * 30;
+            else if (typ === "lata") dni = okres * 365;
+            document.getElementById("okresWartosc").textContent = `Okres w dniach: ${dni}`;
+            updateDataKoniec();
+        }
+
+        function updateDataKoniec() {
+            const dataStart = new Date(document.getElementById("dataStart").value);
+            const okres = parseInt(document.getElementById("okres").value) || 0;
+            const typ = document.getElementById("okresTyp").value;
+            let dni = 0;
+            if (typ === "dni") dni = okres;
+            else if (typ === "miesiace") dni = okres * 30;
+            else if (typ === "lata") dni = okres * 365;
+
+            const dataKoniec = new Date(dataStart);
+            dataKoniec.setDate(dataStart.getDate() + dni);
+            document.getElementById("dataKoniec").textContent = `Data zakończenia: ${dataKoniec.toLocaleDateString('pl-PL')}`;
+            return dataKoniec;
+        }
+
+        updateOkres();
+        updateDataKoniec();
+
+        function obliczLokate() {
+            const kwota = parseFloat(document.getElementById("kwota").value) || 0;
+            const oprocentowanie = parseFloat(document.getElementById("oprocentowanie").value) / 100 || 0;
+            const okres = parseInt(document.getElementById("okres").value) || 0;
+            const typOkresu = document.getElementById("okresTyp").value;
+            const podatekProcent = parseFloat(document.getElementById("podatek").value) / 100 || 0.19;
+            const kapitalizacja = document.getElementById("kapitalizacja").value;
+
+            if (kwota < 1000 || okres < 1 || oprocentowanie <= 0) {
+                alert("Proszę wypełnić wszystkie pola poprawnymi wartościami.");
+                return;
+            }
+
+            let dni = 0;
+            if (typOkresu === "dni") dni = okres;
+            else if (typOkresu === "miesiace") dni = okres * 30;
+            else if (typOkresu === "lata") dni = okres * 365;
+
+            let okresWRokach = dni / 365;
+            let odsetkiBrutto = 0;
+
+            const kapitalizacjeWRokach = {
+                "koniec": 1 / okresWRokach,
+                "roczna": 1,
+                "kwartalna": 4,
+                "miesieczna": 12,
+                "dzienna": 365
+            };
+            const czestoscKapitalizacji = kapitalizacjeWRokach[kapitalizacja] || 1 / okresWRokach;
+
+            if (kapitalizacja === "koniec") {
+                odsetkiBrutto = kwota * oprocentowanie * okresWRokach;
+            } else {
+                odsetkiBrutto = kwota * (Math.pow(1 + oprocentowanie / czestoscKapitalizacji, czestoscKapitalizacji * okresWRokach) - 1);
+            }
+
+            const podatek = odsetkiBrutto * podatekProcent;
+            const odsetkiNetto = odsetkiBrutto - podatek;
+            const calkowitaKwota = kwota + odsetkiNetto;
+            const dataKoniec = updateDataKoniec();
+
+            document.getElementById("resultKwota").textContent = kwota.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            document.getElementById("resultOdsetkiBrutto").textContent = odsetkiBrutto.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            document.getElementById("resultPodatek").textContent = podatek.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            document.getElementById("resultOdsetkiNetto").textContent = odsetkiNetto.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            document.getElementById("resultCalkowita").textContent = calkowitaKwota.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            document.getElementById("resultDataKoniec").textContent = dataKoniec.toLocaleDateString('pl-PL');
+
+            document.getElementById("formSection").style.display = "none";
+            document.getElementById("resultSection").style.display = "block";
+        }
+
+        function showForm() {
+            document.getElementById("formSection").style.display = "block";
+            document.getElementById("resultSection").style.display = "none";
+        }
+
+        document.getElementById("obliczBtn").addEventListener("click", obliczLokate);
+    </script>
+</body>
+</html>
