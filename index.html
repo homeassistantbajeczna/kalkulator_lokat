@@ -373,14 +373,12 @@
                 return;
             }
 
-            let dni = 0;
-            if (typOkresu === "dni") dni = okres;
-            else if (typOkresu === "miesiace") dni = okres * 30;
-            else if (typOkresu === "lata") dni = okres * 365;
+            let okresWRokach = 0;
+            if (typOkresu === "dni") okresWRokach = okres / 365;
+            else if (typOkresu === "miesiace") okresWRokach = okres / 12; // 12 miesięcy = 1 rok
+            else if (typOkresu === "lata") okresWRokach = okres;
 
-            let okresWRokach = dni / 365;
             let odsetkiBrutto = 0;
-
             const kapitalizacjeWRokach = {
                 "koniec": 1 / okresWRokach,
                 "roczna": 1,
