@@ -6,6 +6,8 @@
     <title>Kalkulator Lokaty</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Dodajemy Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
     <style>
         body {
             background-color: #f5f6f5;
@@ -178,6 +180,12 @@
             text-align: center;
             display: block;
         }
+        /* Styl dla wykresu */
+        .chart-container {
+            max-width: 500px;
+            margin: 20px auto;
+            height: 200px;
+        }
     </style>
 </head>
 <body>
@@ -278,6 +286,10 @@
                 <div class="result-item">Odsetki netto: <span id="resultOdsetkiNetto">-</span> zł</div>
                 <div class="result-item">Całkowita kwota po zakończeniu: <span id="resultCalkowita">-</span> zł</div>
                 <div class="result-item">Data zakończenia: <span id="resultDataKoniec">-</span></div>
+                <!-- Miejsce na wykres liniowy -->
+                <div class="chart-container">
+                    <canvas id="lokataChartLine"></canvas>
+                </div>
             </div>
             <button class="btn btn-secondary" onclick="showForm()">Powrót do edycji</button>
         </div>
@@ -286,6 +298,9 @@
     <script>
         const today = new Date().toISOString().split('T')[0];
         document.getElementById("dataStart").value = today;
+
+        // Zmienna do przechowywania instancji wykresu
+        let lokataChart;
 
         document.getElementById("kwotaRange").addEventListener("input", function() {
             document.getElementById("kwota").value = this.value;
@@ -373,25 +388,28 @@
                 return;
             }
 
-            let okresWRokach = 0;
-            if (typOkresu === "dni") okresWRokach = okres / 365;
-            else if (typOkresu === "miesiace") okresWRokach = okres / 12; // 12 miesięcy = 1 rok
-            else if (typOkresu === "lata") okresWRokach = okres;
+            let okresWDniach = 0;
+            if (typOkresu === "dni") okresWDniach = okres;
+            else if (typOkresu === "miesiace") okresWDniach = okres * 30;
+            else if (typOkresu === "lata") okresWDniach = okres * 365;
+
+            let okresWRokach = okresWDniach / 365;
 
             let odsetkiBrutto = 0;
-            const kapitalizacjeWRokach = {
+            const kapitalizacjeWDniach = {
                 "koniec": 1 / okresWRokach,
                 "roczna": 1,
                 "kwartalna": 4,
                 "miesieczna": 12,
                 "dzienna": 365
             };
-            const czestoscKapitalizacji = kapitalizacjeWRokach[kapitalizacja] || 1 / okresWRokach;
+            const czestoscKapitalizacji = kapitalizacjeWDniach[kapitalizacja] || 1 / okresWRokach;
+            const liczbaOkresowKapitalizacji = Math.floor(czestoscKapitalizacji * okresWRokach);
 
             if (kapitalizacja === "koniec") {
                 odsetkiBrutto = kwota * oprocentowanie * okresWRokach;
             } else {
-                odsetkiBrutto = kwota * (Math.pow(1 + oprocentowanie / czestoscKapitalizacji, czestoscKapitalizacji * okresWRokach) - 1);
+                odsetkiBrutto = kwota * (Math.pow(1 + oprocentowanie / czestoscKapitalizacji, liczbaOkresowKapitalizacji) - 1);
             }
 
             const podatek = odsetkiBrutto * podatekProcent;
@@ -405,6 +423,84 @@
             document.getElementById("resultOdsetkiNetto").textContent = odsetkiNetto.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             document.getElementById("resultCalkowita").textContent = calkowitaKwota.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             document.getElementById("resultDataKoniec").textContent = dataKoniec.toLocaleDateString('pl-PL');
+
+            // Obliczanie danych dla wykresu liniowego
+            const dataStart = new Date(document.getElementById("dataStart").value);
+            const labels = [];
+            const wartosciLokaty = [];
+            const krokWDniach = okresWDniach / Math.min(10, okresWDniach); // Maksymalnie 10 punktów lub mniej, jeśli okres jest krótszy
+
+            let kapital = kwota;
+            for (let i = 0; i <= okresWDniach; i += krokWDniach) {
+                const dniOdStartu = Math.min(i, okresWDniach); // Nie przekraczamy okresu lokaty
+                const data = new Date(dataStart);
+                data.setDate(data.getDate() + Math.round(dniOdStartu));
+
+                let wartosc;
+                if (kapitalizacja === "koniec") {
+                    if (dniOdStartu === okresWDniach) {
+                        wartosc = kwota + odsetkiNetto;
+                    } else {
+                        wartosc = kwota; // Brak wzrostu przed końcem okresu
+                    }
+                } else {
+                    const okresyKapitalizacjiDoTeraz = Math.floor((dniOdStartu / 365) * czestoscKapitalizacji);
+                    const odsetkiBruttoDoTeraz = kwota * (Math.pow(1 + oprocentowanie / czestoscKapitalizacji, okresyKapitalizacjiDoTeraz) - 1);
+                    const podatekDoTeraz = odsetkiBruttoDoTeraz * podatekProcent;
+                    wartosc = kwota + (odsetkiBruttoDoTeraz - podatekDoTeraz);
+                }
+
+                labels.push(data.toLocaleDateString('pl-PL'));
+                wartosciLokaty.push(wartosc);
+            }
+
+            // Usuwamy stary wykres, jeśli istnieje
+            if (lokataChart) {
+                lokataChart.destroy();
+            }
+
+            // Tworzymy wykres liniowy
+            const ctx = document.getElementById("lokataChartLine").getContext("2d");
+            lokataChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Wartość lokaty netto',
+                        data: wartosciLokaty,
+                        borderColor: '#C2B280',
+                        backgroundColor: 'rgba(194, 178, 128, 0.2)',
+                        fill: true,
+                        tension: 0.1,
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Data'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Wartość (PLN)'
+                            },
+                            beginAtZero: false
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    }
+                }
+            });
 
             document.getElementById("formSection").style.display = "none";
             document.getElementById("resultSection").style.display = "block";
