@@ -6,7 +6,6 @@
     <title>Kalkulator Lokaty</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
-    <!-- Dodajemy Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
     <style>
         body {
@@ -105,7 +104,7 @@
         .checkbox-container {
             display: flex;
             justify-content: center;
-            margin-left: -20px;
+            margin: 10px 0;
         }
         input[type="checkbox"] {
             accent-color: #C2B280;
@@ -168,7 +167,7 @@
         }
         #advancedOptions {
             display: none;
-            margin-top: 10px;
+            margin-top: 0;
             margin-bottom: 20px;
         }
         .btn-toggle {
@@ -180,15 +179,19 @@
             text-align: center;
             display: block;
         }
-        /* Styl dla wykresu */
         .chart-container {
             max-width: 500px;
             margin: 20px auto;
             height: 200px;
         }
-        /* Style dla zmiennego oprocentowania */
+        /* Style dla zmiennego oprocentowania i opcji zaawansowanych */
+        .options-container {
+            max-width: 400px;
+            margin: 0 auto;
+            text-align: center;
+        }
         .variable-rate-container {
-            margin-top: 15px;
+            margin: 10px 0;
             text-align: center;
         }
         .checkbox-row {
@@ -305,50 +308,54 @@
                             <div class="sub-info" id="dataKoniec">Data zakończenia: -</div>
                         </div>
                     </div>
-                    <!-- Dodajemy sekcję dla zmiennego oprocentowania -->
-                    <div class="variable-rate-container">
-                        <div class="checkbox-row" id="variableCheckboxRow">
+                    <!-- Kontener dla opcji zmiennego oprocentowania i zaawansowanych -->
+                    <div class="options-container">
+                        <!-- Sekcja dla zmiennego oprocentowania -->
+                        <div class="variable-rate-container">
+                            <div class="checkbox-row" id="variableCheckboxRow">
+                                <div class="form-group">
+                                    <div style="display: flex; align-items: center; gap: 5px;">
+                                        <input type="checkbox" id="zmienneOprocentowanieBtn">
+                                        <label for="zmienneOprocentowanieBtn" class="checkbox-label">Zmienne oprocentowanie</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="variable-inputs" id="variableInputs" style="display: none;">
+                                <div class="variable-inputs-wrapper" id="variableInputsWrapper"></div>
+                                <button type="button" class="btn btn-secondary btn-sm" id="addVariableBtn" style="display: none;">Dodaj kolejne</button>
+                            </div>
+                        </div>
+                        <!-- Sekcja dla opcji zaawansowanych -->
+                        <div class="checkbox-container">
                             <div class="form-group">
                                 <div style="display: flex; align-items: center; gap: 5px;">
-                                    <input type="checkbox" id="zmienneOprocentowanieBtn">
-                                    <label for="zmienneOprocentowanieBtn" class="checkbox-label">Zmienne oprocentowanie</label>
+                                    <input type="checkbox" id="wlaczZaawansowane" name="wlaczZaawansowane">
+                                    <label for="wlaczZaawansowane" class="checkbox-label">Opcje zaawansowane</label>
                                 </div>
                             </div>
                         </div>
-                        <div class="variable-inputs" id="variableInputs" style="display: none;">
-                            <div class="variable-inputs-wrapper" id="variableInputsWrapper"></div>
-                            <button type="button" class="btn btn-secondary btn-sm" id="addVariableBtn" style="display: none;">Dodaj kolejne</button>
-                        </div>
-                    </div>
-                    <div class="checkbox-container">
-                        <div class="form-group">
-                            <div style="display: flex; align-items: center; gap: 5px;">
-                                <input type="checkbox" id="wlaczZaawansowane" name="wlaczZaawansowane">
-                                <label for="wlaczZaawansowane" class="checkbox-label">Opcje zaawansowane</label>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="advancedOptions">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="podatek" class="form-label">Podatek</label>
-                                <div class="input-group">
-                                    <input type="number" class="form-control" id="podatek" min="1" max="50" step="0.1" value="19">
-                                    <span class="input-group-text">%</span>
+                        <div id="advancedOptions">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="podatek" class="form-label">Podatek</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="podatek" min="1" max="50" step="0.1" value="19">
+                                        <span class="input-group-text">%</span>
+                                    </div>
+                                    <input type="range" class="form-range" id="podatekRange" min="1" max="50" step="0.1" value="19">
+                                    <div class="sub-info"></div>
                                 </div>
-                                <input type="range" class="form-range" id="podatekRange" min="1" max="50" step="0.1" value="19">
-                                <div class="sub-info"></div>
-                            </div>
-                            <div class="form-group">
-                                <label for="kapitalizacja" class="form-label">Kapitalizacja odsetek</label>
-                                <select class="form-control" id="kapitalizacja">
-                                    <option value="koniec" selected>Na koniec okresu</option>
-                                    <option value="roczna">Roczna</option>
-                                    <option value="kwartalna">Kwartalna</option>
-                                    <option value="miesieczna">Miesięczna</option>
-                                    <option value="dzienna">Dzienne</option>
-                                </select>
-                                <div class="sub-info"></div>
+                                <div class="form-group">
+                                    <label for="kapitalizacja" class="form-label">Kapitalizacja odsetek</label>
+                                    <select class="form-control" id="kapitalizacja">
+                                        <option value="koniec" selected>Na koniec okresu</option>
+                                        <option value="roczna">Roczna</option>
+                                        <option value="kwartalna">Kwartalna</option>
+                                        <option value="miesieczna">Miesięczna</option>
+                                        <option value="dzienna">Dzienne</option>
+                                    </select>
+                                    <div class="sub-info"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -367,7 +374,6 @@
                 <div class="result-item">Odsetki netto: <span id="resultOdsetkiNetto">-</span> zł</div>
                 <div class="result-item">Całkowita kwota po zakończeniu: <span id="resultCalkowita">-</span> zł</div>
                 <div class="result-item">Data zakończenia: <span id="resultDataKoniec">-</span></div>
-                <!-- Miejsce na wykres liniowy -->
                 <div class="chart-container">
                     <canvas id="lokataChartLine"></canvas>
                 </div>
@@ -380,7 +386,6 @@
         const today = new Date().toISOString().split('T')[0];
         document.getElementById("dataStart").value = today;
 
-        // Zmienna do przechowywania instancji wykresu
         let lokataChart;
         let variableOprocentowanieChanges = [];
 
@@ -448,7 +453,6 @@
                 dataKoniec.setFullYear(dataStart.getFullYear() + okres);
             }
 
-            // Dodaj jeden dzień, aby data zakończenia była dniem po okresie lokaty
             dataKoniec.setDate(dataKoniec.getDate() + 1);
 
             document.getElementById("dataKoniec").textContent = `Data zakończenia: ${dataKoniec.toLocaleDateString('pl-PL')}`;
@@ -464,11 +468,26 @@
             const wrapper = document.getElementById("variableInputsWrapper");
 
             let maxCykl = 0;
-            if (typOkresu === "dni") maxCykl = okres;
-            else if (typOkresu === "miesiace") maxCykl = okres;
-            else if (typOkresu === "lata") maxCykl = okres * 12;
+            let jednostka = "";
+            let etykieta = "";
+            if (typOkresu === "dni") {
+                maxCykl = okres;
+                jednostka = "dzień";
+                etykieta = "dnia";
+            } else if (typOkresu === "miesiace") {
+                maxCykl = okres;
+                jednostka = "mc";
+                etykieta = "miesiąca";
+            } else if (typOkresu === "lata") {
+                maxCykl = okres * 12;
+                jednostka = "mc";
+                etykieta = "miesiąca";
+            }
 
-            if (isZmienneOprocentowanie && maxCykl > 0) {
+            // Maksymalna liczba zmian to maxCykl - 1 (bo pierwsza zmiana zaczyna się od 2. jednostki)
+            const maxChanges = maxCykl > 1 ? maxCykl - 1 : 0;
+
+            if (isZmienneOprocentowanie && maxCykl > 1) {
                 variableInputs.style.display = "block";
                 addVariableBtn.style.display = "block";
 
@@ -487,12 +506,12 @@
                     const cyklGroup = document.createElement("div");
                     cyklGroup.className = "form-group";
                     cyklGroup.innerHTML = `
-                        <label class="form-label">Od ${typOkresu === "dni" ? "dnia" : "miesiąca"}</label>
+                        <label class="form-label">Od ${etykieta}</label>
                         <div class="input-group">
-                            <input type="number" class="form-control variable-cykl" min="1" max="${maxCykl}" step="1" value="${change.cykl}">
-                            <span class="input-group-text">${typOkresu === "dni" ? "dzień" : "mc"}</span>
+                            <input type="number" class="form-control variable-cykl" min="2" max="${maxCykl}" step="1" value="${change.cykl}">
+                            <span class="input-group-text">${jednostka}</span>
                         </div>
-                        <input type="range" class="form-range variable-cykl-range" min="1" max="${maxCykl}" step="1" value="${change.cykl}">
+                        <input type="range" class="form-range variable-cykl-range" min="2" max="${maxCykl}" step="1" value="${change.cykl}">
                     `;
 
                     const rateGroup = document.createElement("div");
@@ -546,7 +565,6 @@
                     });
                 });
 
-                const maxChanges = maxCykl;
                 addVariableBtn.style.display = variableOprocentowanieChanges.length < maxChanges ? "block" : "none";
             } else {
                 variableInputs.style.display = "none";
@@ -563,8 +581,11 @@
             else if (typOkresu === "miesiace") maxCykl = okres;
             else if (typOkresu === "lata") maxCykl = okres * 12;
 
-            if (variableOprocentowanieChanges.length >= maxCykl) {
-                alert(`Osiągnięto maksymalną liczbę zmian (${maxCykl}).`);
+            // Maksymalna liczba zmian to maxCykl - 1
+            const maxChanges = maxCykl > 1 ? maxCykl - 1 : 0;
+
+            if (variableOprocentowanieChanges.length >= maxChanges) {
+                alert(`Osiągnięto maksymalną liczbę zmian (${maxChanges}).`);
                 return;
             }
 
@@ -612,10 +633,8 @@
 
             let okresWRokach = okresWDniach / 365;
 
-            // Sortowanie zmian oprocentowania według cyklu
             variableOprocentowanieChanges.sort((a, b) => a.cykl - b.cykl);
 
-            // Obliczanie odsetek z uwzględnieniem zmiennego oprocentowania
             let odsetkiBrutto = 0;
             const kapitalizacjeWDniach = {
                 "koniec": 1 / okresWRokach,
@@ -632,7 +651,6 @@
 
             if (kapitalizacja === "koniec") {
                 if (isZmienneOprocentowanie) {
-                    // Obliczanie odsetek dzień po dniu z uwzględnieniem zmiennego oprocentowania
                     let currentOprocentowanie = (parseFloat(document.getElementById("oprocentowanie").value) || 4) / 100;
                     for (let dzien = 1; dzien <= okresWDniach; dzien++) {
                         let cykl = typOkresu === "dni" ? dzien : Math.ceil(dzien / 30);
@@ -651,7 +669,6 @@
                 }
             } else {
                 if (isZmienneOprocentowanie) {
-                    // Obliczanie odsetek z kapitalizacją i zmiennym oprocentowaniem
                     let currentOprocentowanie = (parseFloat(document.getElementById("oprocentowanie").value) || 4) / 100;
                     const dniWKapitalizacji = Math.floor(365 / czestoscKapitalizacji);
                     for (let i = 0; i < liczbaOkresowKapitalizacji; i++) {
@@ -692,7 +709,6 @@
             document.getElementById("resultCalkowita").textContent = calkowitaKwota.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             document.getElementById("resultDataKoniec").textContent = dataKoniec.toLocaleDateString('pl-PL');
 
-            // Obliczanie danych dla wykresu liniowego
             const dataStart = new Date(document.getElementById("dataStart").value);
             const labels = [];
             const wartosciLokaty = [];
@@ -728,7 +744,6 @@
                         const odsetkiDziennie = kapital * (currentOprocentowanie / 365);
                         odsetkiBruttoDoTeraz += odsetkiDziennie;
 
-                        // Kapitalizacja w odpowiednich momentach
                         const dzienWKapitalizacji = Math.floor(dzien / (365 / czestoscKapitalizacji)) * (365 / czestoscKapitalizacji);
                         if (dzien % (365 / czestoscKapitalizacji) === 0 && dzien <= dniOdStartu) {
                             kapital += odsetkiBruttoDoTeraz;
@@ -744,12 +759,10 @@
                 wartosciLokaty.push(wartosc);
             }
 
-            // Usuwamy stary wykres, jeśli istnieje
             if (lokataChart) {
                 lokataChart.destroy();
             }
 
-            // Tworzymy wykres liniowy
             const ctx = document.getElementById("lokataChartLine").getContext("2d");
             lokataChart = new Chart(ctx, {
                 type: 'line',
