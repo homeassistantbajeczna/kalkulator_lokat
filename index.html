@@ -469,19 +469,15 @@
 
             let maxCykl = 0;
             let jednostka = "";
-            let etykieta = "";
             if (typOkresu === "dni") {
                 maxCykl = okres;
-                jednostka = "dzień";
-                etykieta = "dnia";
+                jednostka = "dnia";
             } else if (typOkresu === "miesiace") {
                 maxCykl = okres;
-                jednostka = "mc";
-                etykieta = "miesiąca";
+                jednostka = "miesiąca";
             } else if (typOkresu === "lata") {
-                maxCykl = okres; // Jednostką jest rok, więc maxCykl to liczba lat
-                jednostka = "rok";
-                etykieta = "roku";
+                maxCykl = okres; // Jednostką jest rok
+                jednostka = "roku";
             }
 
             // Maksymalna liczba zmian to maxCykl - 1 (bo pierwsza zmiana zaczyna się od 2. jednostki)
@@ -506,7 +502,7 @@
                     const cyklGroup = document.createElement("div");
                     cyklGroup.className = "form-group";
                     cyklGroup.innerHTML = `
-                        <label class="form-label">Od ${etykieta}</label>
+                        <label class="form-label">Od</label>
                         <div class="input-group">
                             <input type="number" class="form-control variable-cykl" min="2" max="${maxCykl}" step="1" value="${change.cykl}">
                             <span class="input-group-text">${jednostka}</span>
