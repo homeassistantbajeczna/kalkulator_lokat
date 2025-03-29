@@ -479,9 +479,9 @@
                 jednostka = "mc";
                 etykieta = "miesiąca";
             } else if (typOkresu === "lata") {
-                maxCykl = okres * 12;
-                jednostka = "mc";
-                etykieta = "miesiąca";
+                maxCykl = okres; // Jednostką jest rok, więc maxCykl to liczba lat
+                jednostka = "rok";
+                etykieta = "roku";
             }
 
             // Maksymalna liczba zmian to maxCykl - 1 (bo pierwsza zmiana zaczyna się od 2. jednostki)
@@ -579,7 +579,7 @@
             let maxCykl = 0;
             if (typOkresu === "dni") maxCykl = okres;
             else if (typOkresu === "miesiace") maxCykl = okres;
-            else if (typOkresu === "lata") maxCykl = okres * 12;
+            else if (typOkresu === "lata") maxCykl = okres; // Jednostką jest rok
 
             // Maksymalna liczba zmian to maxCykl - 1
             const maxChanges = maxCykl > 1 ? maxCykl - 1 : 0;
@@ -653,7 +653,14 @@
                 if (isZmienneOprocentowanie) {
                     let currentOprocentowanie = (parseFloat(document.getElementById("oprocentowanie").value) || 4) / 100;
                     for (let dzien = 1; dzien <= okresWDniach; dzien++) {
-                        let cykl = typOkresu === "dni" ? dzien : Math.ceil(dzien / 30);
+                        let cykl;
+                        if (typOkresu === "dni") {
+                            cykl = dzien;
+                        } else if (typOkresu === "miesiace") {
+                            cykl = Math.ceil(dzien / 30);
+                        } else if (typOkresu === "lata") {
+                            cykl = Math.ceil(dzien / 365); // Przeliczamy dni na lata
+                        }
                         for (const change of variableOprocentowanieChanges) {
                             if (cykl >= change.cykl) {
                                 currentOprocentowanie = change.wartosc / 100;
@@ -677,7 +684,14 @@
                         let odsetkiWKapitalizacji = 0;
 
                         for (let dzien = dzienPoczatkuKapitalizacji; dzien <= dzienKoncaKapitalizacji; dzien++) {
-                            let cykl = typOkresu === "dni" ? dzien : Math.ceil(dzien / 30);
+                            let cykl;
+                            if (typOkresu === "dni") {
+                                cykl = dzien;
+                            } else if (typOkresu === "miesiace") {
+                                cykl = Math.ceil(dzien / 30);
+                            } else if (typOkresu === "lata") {
+                                cykl = Math.ceil(dzien / 365); // Przeliczamy dni na lata
+                            }
                             for (const change of variableOprocentowanieChanges) {
                                 if (cykl >= change.cykl) {
                                     currentOprocentowanie = change.wartosc / 100;
@@ -733,7 +747,14 @@
                 } else {
                     let odsetkiBruttoDoTeraz = 0;
                     for (let dzien = 1; dzien <= dniOdStartu; dzien++) {
-                        let cykl = typOkresu === "dni" ? dzien : Math.ceil(dzien / 30);
+                        let cykl;
+                        if (typOkresu === "dni") {
+                            cykl = dzien;
+                        } else if (typOkresu === "miesiace") {
+                            cykl = Math.ceil(dzien / 30);
+                        } else if (typOkresu === "lata") {
+                            cykl = Math.ceil(dzien / 365); // Przeliczamy dni na lata
+                        }
                         if (isZmienneOprocentowanie) {
                             for (const change of variableOprocentowanieChanges) {
                                 if (cykl >= change.cykl) {
