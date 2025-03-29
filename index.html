@@ -186,6 +186,72 @@
             margin: 20px auto;
             height: 200px;
         }
+        /* Style dla zmiennego oprocentowania */
+        .variable-rate-container {
+            margin-top: 15px;
+            text-align: center;
+        }
+        .checkbox-row {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 10px;
+        }
+        .variable-inputs {
+            margin-top: 10px;
+        }
+        .variable-input-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        .fields-wrapper {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        .variable-input-group .form-group {
+            max-width: 120px;
+        }
+        .remove-btn-wrapper {
+            display: flex;
+            justify-content: center;
+            margin-top: 5px;
+        }
+        .variable-input-group .form-label {
+            text-align: left !important;
+            width: 100%;
+            padding-left: 0;
+        }
+        .variable-input-group .input-group {
+            justify-content: center;
+        }
+        .variable-input-group .btn-danger {
+            font-size: 0.7em;
+            padding: 2px 8px;
+            height: 22px;
+            line-height: 18px;
+            background: #dc3545;
+            border: none;
+            border-radius: 5px;
+            color: #fff;
+        }
+        .variable-input-group .btn-danger:hover {
+            background: #c82333;
+        }
+        #addVariableBtn {
+            background: linear-gradient(135deg, #C2B280, #b0a070);
+            color: #000;
+            font-size: 0.7em;
+            padding: 3px 10px;
+            border-radius: 15px;
+            margin: 0 auto;
+            display: block;
+        }
+        #addVariableBtn:hover {
+            background: linear-gradient(135deg, #b0a070, #C2B280);
+        }
     </style>
 </head>
 <body>
@@ -237,6 +303,21 @@
                             <label for="dataStart" class="form-label">Data rozpoczęcia</label>
                             <input type="date" class="form-control" id="dataStart" value="2025-03-16">
                             <div class="sub-info" id="dataKoniec">Data zakończenia: -</div>
+                        </div>
+                    </div>
+                    <!-- Dodajemy sekcję dla zmiennego oprocentowania -->
+                    <div class="variable-rate-container">
+                        <div class="checkbox-row" id="variableCheckboxRow">
+                            <div class="form-group">
+                                <div style="display: flex; align-items: center; gap: 5px;">
+                                    <input type="checkbox" id="zmienneOprocentowanieBtn">
+                                    <label for="zmienneOprocentowanieBtn" class="checkbox-label">Zmienne oprocentowanie</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="variable-inputs" id="variableInputs" style="display: none;">
+                            <div class="variable-inputs-wrapper" id="variableInputsWrapper"></div>
+                            <button type="button" class="btn btn-secondary btn-sm" id="addVariableBtn" style="display: none;">Dodaj kolejne</button>
                         </div>
                     </div>
                     <div class="checkbox-container">
@@ -301,6 +382,7 @@
 
         // Zmienna do przechowywania instancji wykresu
         let lokataChart;
+        let variableOprocentowanieChanges = [];
 
         document.getElementById("kwotaRange").addEventListener("input", function() {
             document.getElementById("kwota").value = this.value;
@@ -348,6 +430,7 @@
             else if (typ === "lata") dni = okres * 365;
             document.getElementById("okresWartosc").textContent = `Okres w dniach: ${dni}`;
             updateDataKoniec();
+            updateVariableInputs();
         }
 
         function updateDataKoniec() {
@@ -372,29 +455,167 @@
             return dataKoniec;
         }
 
+        function updateVariableInputs() {
+            const okres = parseInt(document.getElementById("okres").value) || 0;
+            const typOkresu = document.getElementById("okresTyp").value;
+            const isZmienneOprocentowanie = document.getElementById("zmienneOprocentowanieBtn").checked;
+            const variableInputs = document.getElementById("variableInputs");
+            const addVariableBtn = document.getElementById("addVariableBtn");
+            const wrapper = document.getElementById("variableInputsWrapper");
+
+            let maxCykl = 0;
+            if (typOkresu === "dni") maxCykl = okres;
+            else if (typOkresu === "miesiace") maxCykl = okres;
+            else if (typOkresu === "lata") maxCykl = okres * 12;
+
+            if (isZmienneOprocentowanie && maxCykl > 0) {
+                variableInputs.style.display = "block";
+                addVariableBtn.style.display = "block";
+
+                if (variableOprocentowanieChanges.length === 0) {
+                    addVariableChange();
+                }
+
+                wrapper.innerHTML = "";
+                variableOprocentowanieChanges.forEach((change, index) => {
+                    const inputGroup = document.createElement("div");
+                    inputGroup.className = "variable-input-group";
+
+                    const fieldsWrapper = document.createElement("div");
+                    fieldsWrapper.className = "fields-wrapper";
+
+                    const cyklGroup = document.createElement("div");
+                    cyklGroup.className = "form-group";
+                    cyklGroup.innerHTML = `
+                        <label class="form-label">Od ${typOkresu === "dni" ? "dnia" : "miesiąca"}</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control variable-cykl" min="1" max="${maxCykl}" step="1" value="${change.cykl}">
+                            <span class="input-group-text">${typOkresu === "dni" ? "dzień" : "mc"}</span>
+                        </div>
+                        <input type="range" class="form-range variable-cykl-range" min="1" max="${maxCykl}" step="1" value="${change.cykl}">
+                    `;
+
+                    const rateGroup = document.createElement("div");
+                    rateGroup.className = "form-group";
+                    rateGroup.innerHTML = `
+                        <label class="form-label">Oprocentowanie</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control variable-rate" min="0.1" max="25" step="0.1" value="${change.wartosc}">
+                            <span class="input-group-text">%</span>
+                        </div>
+                        <input type="range" class="form-range variable-rate-range" min="0.1" max="25" step="0.1" value="${change.wartosc}">
+                    `;
+
+                    fieldsWrapper.appendChild(cyklGroup);
+                    fieldsWrapper.appendChild(rateGroup);
+                    inputGroup.appendChild(fieldsWrapper);
+
+                    if (index === variableOprocentowanieChanges.length - 1 && variableOprocentowanieChanges.length > 1) {
+                        const removeBtnWrapper = document.createElement("div");
+                        removeBtnWrapper.className = "remove-btn-wrapper";
+                        const removeBtn = document.createElement("button");
+                        removeBtn.className = "btn btn-danger btn-sm";
+                        removeBtn.textContent = "Usuń";
+                        removeBtn.onclick = () => removeVariableChange();
+                        removeBtnWrapper.appendChild(removeBtn);
+                        inputGroup.appendChild(removeBtnWrapper);
+                    }
+
+                    wrapper.appendChild(inputGroup);
+
+                    const cyklInput = inputGroup.querySelector(".variable-cykl");
+                    const cyklRange = inputGroup.querySelector(".variable-cykl-range");
+                    const rateInput = inputGroup.querySelector(".variable-rate");
+                    const rateRange = inputGroup.querySelector(".variable-rate-range");
+
+                    cyklInput.addEventListener("input", () => {
+                        cyklRange.value = cyklInput.value;
+                        variableOprocentowanieChanges[index].cykl = parseInt(cyklInput.value);
+                    });
+                    cyklRange.addEventListener("input", () => {
+                        cyklInput.value = cyklRange.value;
+                        variableOprocentowanieChanges[index].cykl = parseInt(cyklRange.value);
+                    });
+                    rateInput.addEventListener("input", () => {
+                        rateRange.value = rateInput.value;
+                        variableOprocentowanieChanges[index].wartosc = parseFloat(rateInput.value);
+                    });
+                    rateRange.addEventListener("input", () => {
+                        rateInput.value = rateRange.value;
+                        variableOprocentowanieChanges[index].wartosc = parseFloat(rateInput.value);
+                    });
+                });
+
+                const maxChanges = maxCykl;
+                addVariableBtn.style.display = variableOprocentowanieChanges.length < maxChanges ? "block" : "none";
+            } else {
+                variableInputs.style.display = "none";
+                addVariableBtn.style.display = "none";
+                wrapper.innerHTML = "";
+            }
+        }
+
+        function addVariableChange() {
+            const okres = parseInt(document.getElementById("okres").value) || 0;
+            const typOkresu = document.getElementById("okresTyp").value;
+            let maxCykl = 0;
+            if (typOkresu === "dni") maxCykl = okres;
+            else if (typOkresu === "miesiace") maxCykl = okres;
+            else if (typOkresu === "lata") maxCykl = okres * 12;
+
+            if (variableOprocentowanieChanges.length >= maxCykl) {
+                alert(`Osiągnięto maksymalną liczbę zmian (${maxCykl}).`);
+                return;
+            }
+
+            const lastCykl = variableOprocentowanieChanges.length > 0 ? variableOprocentowanieChanges[variableOprocentowanieChanges.length - 1].cykl : 1;
+            const newCykl = Math.min(lastCykl + 1, maxCykl);
+            variableOprocentowanieChanges.push({ cykl: newCykl, wartosc: parseFloat(document.getElementById("oprocentowanie").value) || 4 });
+            updateVariableInputs();
+        }
+
+        function removeVariableChange() {
+            if (variableOprocentowanieChanges.length > 1) {
+                variableOprocentowanieChanges.pop();
+                updateVariableInputs();
+            }
+        }
+
         updateOkres();
         updateDataKoniec();
 
         function obliczLokate() {
             const kwota = parseFloat(document.getElementById("kwota").value) || 0;
-            const oprocentowanie = parseFloat(document.getElementById("oprocentowanie").value) / 100 || 0;
             const okres = parseInt(document.getElementById("okres").value) || 0;
             const typOkresu = document.getElementById("okresTyp").value;
             const podatekProcent = parseFloat(document.getElementById("podatek").value) / 100 || 0.19;
             const kapitalizacja = document.getElementById("kapitalizacja").value;
+            const isZmienneOprocentowanie = document.getElementById("zmienneOprocentowanieBtn").checked;
 
-            if (kwota < 1000 || okres < 1 || oprocentowanie <= 0) {
+            if (kwota < 1000 || okres < 1) {
                 alert("Proszę wypełnić wszystkie pola poprawnymi wartościami.");
                 return;
             }
 
             let okresWDniach = 0;
-            if (typOkresu === "dni") okresWDniach = okres;
-            else if (typOkresu === "miesiace") okresWDniach = okres * 30;
-            else if (typOkresu === "lata") okresWDniach = okres * 365;
+            let okresWMiesiacach = 0;
+            if (typOkresu === "dni") {
+                okresWDniach = okres;
+                okresWMiesiacach = Math.ceil(okres / 30);
+            } else if (typOkresu === "miesiace") {
+                okresWDniach = okres * 30;
+                okresWMiesiacach = okres;
+            } else if (typOkresu === "lata") {
+                okresWDniach = okres * 365;
+                okresWMiesiacach = okres * 12;
+            }
 
             let okresWRokach = okresWDniach / 365;
 
+            // Sortowanie zmian oprocentowania według cyklu
+            variableOprocentowanieChanges.sort((a, b) => a.cykl - b.cykl);
+
+            // Obliczanie odsetek z uwzględnieniem zmiennego oprocentowania
             let odsetkiBrutto = 0;
             const kapitalizacjeWDniach = {
                 "koniec": 1 / okresWRokach,
@@ -406,10 +627,57 @@
             const czestoscKapitalizacji = kapitalizacjeWDniach[kapitalizacja] || 1 / okresWRokach;
             const liczbaOkresowKapitalizacji = Math.floor(czestoscKapitalizacji * okresWRokach);
 
+            let kapital = kwota;
+            let skumulowaneOdsetkiBrutto = 0;
+
             if (kapitalizacja === "koniec") {
-                odsetkiBrutto = kwota * oprocentowanie * okresWRokach;
+                if (isZmienneOprocentowanie) {
+                    // Obliczanie odsetek dzień po dniu z uwzględnieniem zmiennego oprocentowania
+                    let currentOprocentowanie = (parseFloat(document.getElementById("oprocentowanie").value) || 4) / 100;
+                    for (let dzien = 1; dzien <= okresWDniach; dzien++) {
+                        let cykl = typOkresu === "dni" ? dzien : Math.ceil(dzien / 30);
+                        for (const change of variableOprocentowanieChanges) {
+                            if (cykl >= change.cykl) {
+                                currentOprocentowanie = change.wartosc / 100;
+                            }
+                        }
+                        const odsetkiDziennie = kapital * (currentOprocentowanie / 365);
+                        skumulowaneOdsetkiBrutto += odsetkiDziennie;
+                    }
+                    odsetkiBrutto = skumulowaneOdsetkiBrutto;
+                } else {
+                    const oprocentowanie = (parseFloat(document.getElementById("oprocentowanie").value) || 4) / 100;
+                    odsetkiBrutto = kwota * oprocentowanie * okresWRokach;
+                }
             } else {
-                odsetkiBrutto = kwota * (Math.pow(1 + oprocentowanie / czestoscKapitalizacji, liczbaOkresowKapitalizacji) - 1);
+                if (isZmienneOprocentowanie) {
+                    // Obliczanie odsetek z kapitalizacją i zmiennym oprocentowaniem
+                    let currentOprocentowanie = (parseFloat(document.getElementById("oprocentowanie").value) || 4) / 100;
+                    const dniWKapitalizacji = Math.floor(365 / czestoscKapitalizacji);
+                    for (let i = 0; i < liczbaOkresowKapitalizacji; i++) {
+                        const dzienPoczatkuKapitalizacji = i * dniWKapitalizacji + 1;
+                        const dzienKoncaKapitalizacji = Math.min((i + 1) * dniWKapitalizacji, okresWDniach);
+                        let odsetkiWKapitalizacji = 0;
+
+                        for (let dzien = dzienPoczatkuKapitalizacji; dzien <= dzienKoncaKapitalizacji; dzien++) {
+                            let cykl = typOkresu === "dni" ? dzien : Math.ceil(dzien / 30);
+                            for (const change of variableOprocentowanieChanges) {
+                                if (cykl >= change.cykl) {
+                                    currentOprocentowanie = change.wartosc / 100;
+                                }
+                            }
+                            const odsetkiDziennie = kapital * (currentOprocentowanie / 365);
+                            odsetkiWKapitalizacji += odsetkiDziennie;
+                        }
+
+                        kapital += odsetkiWKapitalizacji;
+                        skumulowaneOdsetkiBrutto += odsetkiWKapitalizacji;
+                    }
+                    odsetkiBrutto = skumulowaneOdsetkiBrutto;
+                } else {
+                    const oprocentowanie = (parseFloat(document.getElementById("oprocentowanie").value) || 4) / 100;
+                    odsetkiBrutto = kwota * (Math.pow(1 + oprocentowanie / czestoscKapitalizacji, liczbaOkresowKapitalizacji) - 1);
+                }
             }
 
             const podatek = odsetkiBrutto * podatekProcent;
@@ -428,11 +696,14 @@
             const dataStart = new Date(document.getElementById("dataStart").value);
             const labels = [];
             const wartosciLokaty = [];
-            const krokWDniach = okresWDniach / Math.min(10, okresWDniach); // Maksymalnie 10 punktów lub mniej, jeśli okres jest krótszy
+            const krokWDniach = okresWDniach / Math.min(10, okresWDniach);
 
-            let kapital = kwota;
+            kapital = kwota;
+            skumulowaneOdsetkiBrutto = 0;
+            let currentOprocentowanie = (parseFloat(document.getElementById("oprocentowanie").value) || 4) / 100;
+
             for (let i = 0; i <= okresWDniach; i += krokWDniach) {
-                const dniOdStartu = Math.min(i, okresWDniach); // Nie przekraczamy okresu lokaty
+                const dniOdStartu = Math.min(i, okresWDniach);
                 const data = new Date(dataStart);
                 data.setDate(data.getDate() + Math.round(dniOdStartu));
 
@@ -441,13 +712,32 @@
                     if (dniOdStartu === okresWDniach) {
                         wartosc = kwota + odsetkiNetto;
                     } else {
-                        wartosc = kwota; // Brak wzrostu przed końcem okresu
+                        wartosc = kwota;
                     }
                 } else {
-                    const okresyKapitalizacjiDoTeraz = Math.floor((dniOdStartu / 365) * czestoscKapitalizacji);
-                    const odsetkiBruttoDoTeraz = kwota * (Math.pow(1 + oprocentowanie / czestoscKapitalizacji, okresyKapitalizacjiDoTeraz) - 1);
-                    const podatekDoTeraz = odsetkiBruttoDoTeraz * podatekProcent;
-                    wartosc = kwota + (odsetkiBruttoDoTeraz - podatekDoTeraz);
+                    let odsetkiBruttoDoTeraz = 0;
+                    for (let dzien = 1; dzien <= dniOdStartu; dzien++) {
+                        let cykl = typOkresu === "dni" ? dzien : Math.ceil(dzien / 30);
+                        if (isZmienneOprocentowanie) {
+                            for (const change of variableOprocentowanieChanges) {
+                                if (cykl >= change.cykl) {
+                                    currentOprocentowanie = change.wartosc / 100;
+                                }
+                            }
+                        }
+                        const odsetkiDziennie = kapital * (currentOprocentowanie / 365);
+                        odsetkiBruttoDoTeraz += odsetkiDziennie;
+
+                        // Kapitalizacja w odpowiednich momentach
+                        const dzienWKapitalizacji = Math.floor(dzien / (365 / czestoscKapitalizacji)) * (365 / czestoscKapitalizacji);
+                        if (dzien % (365 / czestoscKapitalizacji) === 0 && dzien <= dniOdStartu) {
+                            kapital += odsetkiBruttoDoTeraz;
+                            odsetkiBruttoDoTeraz = 0;
+                        }
+                    }
+                    skumulowaneOdsetkiBrutto += odsetkiBruttoDoTeraz;
+                    const podatekDoTeraz = skumulowaneOdsetkiBrutto * podatekProcent;
+                    wartosc = kwota + (skumulowaneOdsetkiBrutto - podatekDoTeraz);
                 }
 
                 labels.push(data.toLocaleDateString('pl-PL'));
@@ -512,6 +802,8 @@
         }
 
         document.getElementById("obliczBtn").addEventListener("click", obliczLokate);
+        document.getElementById("zmienneOprocentowanieBtn").addEventListener("change", updateVariableInputs);
+        document.getElementById("addVariableBtn").addEventListener("click", addVariableChange);
     </script>
 </body>
 </html>
