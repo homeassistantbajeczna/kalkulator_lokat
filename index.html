@@ -2043,7 +2043,10 @@
             // Upewnij się, że suma szerokości kolumn dokładnie odpowiada dostępnej szerokości
             const totalCalculatedWidth = columnWidths.reduce((sum, width) => sum + width, 0);
             const adjustmentFactor = availableWidth / totalCalculatedWidth;
-            return columnWidths.map(width => width * adjustmentFactor);
+            const adjustedWidths = columnWidths.map(width => width * adjustmentFactor);
+    
+            console.log(`Suma szerokości kolumn po dostosowaniu: ${adjustedWidths.reduce((sum, width) => sum + width, 0)} punktów`);
+            return adjustedWidths;
         };
     
         const columnWidths = calculateColumnWidths();
@@ -2147,7 +2150,7 @@
     
                 const docDefinition = {
                     pageSize: 'A4',
-                    pageMargins: [20, 80, 20, 40],
+                    pageMargins: [14.17, 80, 65.19, 40], // Ustawienie globalnych marginesów
                     defaultStyle: { font: 'Roboto' },
                     header: logoBase64 ? {
                         margin: [40, 20, 40, 0],
@@ -2186,7 +2189,7 @@
                 // Harmonogram tylko, jeśli nie jest zwinięty
                 if (kapitalizacja !== "naKoniec" && tableData.length > 0 && !isHarmonogramCollapsed) {
                     docDefinition.content.push(
-                        { text: "Harmonogram odsetek", style: 'sectionHeader', alignment: 'center', margin: [0, 10, 0, 5], pageMargins: [20, 80, 20, 40] },
+                        { text: "Harmonogram odsetek", style: 'sectionHeader', alignment: 'center', margin: [0, 10, 0, 5] },
                         {
                             table: {
                                 headerRows: 1,
@@ -2209,7 +2212,7 @@
                             margin: [14.17, 0, 65.19, 0], // Ręczne ustawienie marginesów tabeli
                             alignment: 'center'
                         },
-                        { text: footerNoteText, style: 'footerNote', margin: [40, 5, 0, 10], pageMargins: [20, 80, 20, 40] }
+                        { text: footerNoteText, style: 'footerNote', margin: [40, 5, 0, 10] }
                     );
                 }
     
