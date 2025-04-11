@@ -2203,12 +2203,12 @@
                                 fillColor: function (rowIndex) { return (rowIndex === 0) ? '#C2B280' : (rowIndex % 2 === 0 ? '#F5F5F5' : null); },
                                 hLineWidth: function () { return 0.5; },
                                 vLineWidth: function () { return 0.5; },
-                                paddingLeft: function () { return 4; },
-                                paddingRight: function () { return 4; },
+                                paddingLeft: function () { return 1; }, // Zmniejszono z 4 na 1
+                                paddingRight: function () { return 1; }, // Zmniejszono z 4 na 1
                                 paddingTop: function () { return 2; },
                                 paddingBottom: function () { return 2; }
                             },
-                            pageMargins: [14.17, 60, 65.19, 20], // 0,5 cm z lewej, 2,3 cm z prawej
+                            width: 515.92, // Wymuszenie szerokości tabeli
                             margin: [14.17, 0, 65.19, 0], // Ręczne ustawienie marginesów tabeli
                             alignment: 'center'
                         },
