@@ -1986,7 +1986,6 @@
             const valueElement = bar.querySelector(".value");
             const label = labelElement ? labelElement.textContent.replace("Całkowita kwota po zakończeniu:", "Kwota netto po zakończeniu:") : "Brak etykiety";
             let value = valueElement ? valueElement.textContent : "Brak wartości";
-            // Usuwamy " zł" jeśli istnieje, parsujemy i formatujemy ponownie
             value = value.replace(" zł", "").replace(/\s/g, "").replace(",", ".");
             const parsedValue = parseFloat(value);
             value = isNaN(parsedValue) ? "Brak wartości" : `${formatNumber(parsedValue)} zł`;
@@ -2017,36 +2016,32 @@
     
         const calculateColumnWidths = () => {
             const allRows = tableData.length ? [headers, ...tableData] : [headers];
-            const pageWidth = 595.28; // Szerokość strony A4 w punktach
-            const leftMargin = 14.17; // 0,5 cm z lewej
-            const rightMargin = 65.19; // 2,3 cm z prawej
-            const totalMargin = leftMargin + rightMargin; // Suma marginesów bocznych
-            const availableWidth = pageWidth - totalMargin; // Dostępna szerokość strony
+            const pageWidth = 595.28;
+            const leftMargin = 14.17;
+            const rightMargin = 65.19;
+            const totalMargin = leftMargin + rightMargin;
+            const availableWidth = pageWidth - totalMargin;
     
             console.log(`Lewy margines: ${leftMargin} punktów (0,5 cm)`);
             console.log(`Prawy margines: ${rightMargin} punktów (2,3 cm)`);
             console.log(`Dostępna szerokość: ${availableWidth} punktów`);
     
-            // Oblicz maksymalne długości dla nagłówków i wierszy
             const headerLengths = headers.map(header => header.length);
             const contentLengths = headers.map((_, colIndex) => {
                 const maxLength = Math.max(...allRows.slice(1).map(row => row[colIndex] ? row[colIndex].length : 0));
                 return maxLength;
             });
     
-            // Weź pod uwagę zarówno nagłówki, jak i zawartość, z minimalną szerokością
             const maxLengths = headerLengths.map((headerLength, i) => Math.max(headerLength, contentLengths[i]));
             const totalLength = maxLengths.reduce((sum, length) => sum + length, 0);
     
-            // Ustaw minimalną szerokość kolumny
-            const minWidth = 40; // Minimalna szerokość kolumny, aby nagłówki mogły się zawijać
+            const minWidth = 40;
             const columnWidths = maxLengths.map(length => {
                 const proportion = length / totalLength;
                 const calculatedWidth = proportion * availableWidth;
-                return Math.max(minWidth, calculatedWidth); // Zapewnia minimalną szerokość
+                return Math.max(minWidth, calculatedWidth);
             });
     
-            // Upewnij się, że suma szerokości kolumn dokładnie odpowiada dostępnej szerokości
             const totalCalculatedWidth = columnWidths.reduce((sum, width) => sum + width, 0);
             const adjustmentFactor = availableWidth / totalCalculatedWidth;
             const adjustedWidths = columnWidths.map(width => width * adjustmentFactor);
@@ -2058,7 +2053,6 @@
         const columnWidths = calculateColumnWidths();
         const lineChartCanvas = document.getElementById("lokatyChartLine");
     
-        // Przygotowanie wykresu do PDF
         const originalColors = {
             xGridColor: state.chartLine.options.scales.x.grid.color,
             yGridColor: state.chartLine.options.scales.y.grid.color,
@@ -2068,7 +2062,8 @@
             yTitleColor: state.chartLine.options.scales.y.title.color,
             xTicksColor: state.chartLine.options.scales.x.ticks.color,
             yTicksColor: state.chartLine.options.scales.y.ticks.color,
-            legendColor: state.chartLine.options.plugins.legend.labels.color
+            legendColor: state.chartLine.options.plugins.legend.labels.color,
+            yTicksCallback: state.chartLine.options.scales.y.ticks.callback
         };
     
         state.chartLine.options.scales.x.grid.color = '#e0e0e0';
@@ -2080,6 +2075,9 @@
         state.chartLine.options.scales.x.ticks.color = '#333333';
         state.chartLine.options.scales.y.ticks.color = '#333333';
         state.chartLine.options.plugins.legend.labels.color = '#333333';
+        state.chartLine.options.scales.y.ticks.callback = function(value) {
+            return formatNumber(value);
+        };
         state.chartLine.update();
     
         requestAnimationFrame(() => {
@@ -2094,6 +2092,7 @@
             state.chartLine.options.scales.x.ticks.color = originalColors.xTicksColor;
             state.chartLine.options.scales.y.ticks.color = originalColors.yTicksColor;
             state.chartLine.options.plugins.legend.labels.color = originalColors.legendColor;
+            state.chartLine.options.scales.y.ticks.callback = originalColors.yTicksCallback;
             state.chartLine.update();
     
             function getBase64ImageFromUrl(url) {
@@ -2122,15 +2121,14 @@
                 const starText = hasStar && kapitalizacja !== "naKoniec" ? "★ Zmiana oprocentowania.\n" : "";
                 const footerNoteText = `${starText}`;
     
-                // Znaki wodne: siatka 4x8, marginesy 2 cm góra/dół, obrót -45°
                 const pageWidth = 595;
                 const pageHeight = 842;
-                const marginLeftRight = 85; // 3 cm
-                const marginTopBottom = 57; // 2 cm
-                const availableWidth = pageWidth - 2 * marginLeftRight; // 425 px
-                const availableHeight = pageHeight - 2 * marginTopBottom; // 728 px
-                const watermarkWidth = 60 * 4; // 240 px
-                const watermarkHeight = 60 * aspectRatio * 8; // 8 rzędów
+                const marginLeftRight = 85;
+                const marginTopBottom = 57;
+                const availableWidth = pageWidth - 2 * marginLeftRight;
+                const availableHeight = pageHeight - 2 * marginTopBottom;
+                const watermarkWidth = 60 * 4;
+                const watermarkHeight = 60 * aspectRatio * 8;
                 const spacingX = (availableWidth - watermarkWidth) / 3;
                 const spacingY = (availableHeight - watermarkHeight) / 7;
     
@@ -2144,19 +2142,18 @@
                                 x: marginLeftRight + (i % 4) * (60 + spacingX),
                                 y: marginTopBottom + Math.floor(i / 4) * (60 * aspectRatio + spacingY)
                             },
-                            opacity: 0.08, // Zwiększona widoczność
-                            rotation: -45 // Obrót o 45° w lewo
+                            opacity: 0.08,
+                            rotation: -45
                         }))
                     ]
                 } : null;
     
-                // Sprawdzenie zwinięcia harmonogramu
                 const harmonogramContent = document.getElementById("harmonogramContent");
                 const isHarmonogramCollapsed = harmonogramContent.style.display === "none";
     
                 const docDefinition = {
                     pageSize: 'A4',
-                    pageMargins: [14.17, 80, 65.19, 40], // Ustawienie globalnych marginesów
+                    pageMargins: [14.17, 80, 65.19, 40],
                     defaultStyle: { font: 'Roboto' },
                     header: logoBase64 ? {
                         margin: [40, 20, 40, 0],
@@ -2192,7 +2189,6 @@
                     }
                 };
     
-                // Harmonogram tylko, jeśli nie jest zwinięty
                 if (kapitalizacja !== "naKoniec" && tableData.length > 0 && !isHarmonogramCollapsed) {
                     docDefinition.content.push(
                         { text: "Harmonogram odsetek", style: 'sectionHeader', alignment: 'center', margin: [56.68, 10, 0, 5] },
@@ -2214,8 +2210,8 @@
                                 paddingTop: function () { return 2; },
                                 paddingBottom: function () { return 2; }
                             },
-                            width: 515.92, // Wymuszenie szerokości tabeli
-                            margin: [14.17, 0, 65.19, 0], // Ręczne ustawienie marginesów tabeli
+                            width: 515.92,
+                            margin: [14.17, 0, 65.19, 0],
                             alignment: 'center'
                         },
                         { text: footerNoteText, style: 'footerNote', margin: [14.17, 5, 65.19, 10] }
@@ -2227,14 +2223,14 @@
                         text: "Wykres liniowy wartości lokaty w czasie", 
                         style: 'sectionHeader', 
                         alignment: 'center', 
-                        margin: [99.19, 20, 0, 10], // Przesunięcie o 3,5 cm w prawo (2 cm + 1,5 cm)
+                        margin: [99.19, 20, 0, 10],
                         pageBreak: tableData.length > 10 && !isHarmonogramCollapsed ? 'before' : 'none' 
                     },
                     { 
                         image: lineChartImage, 
-                        width: 467.75, // Szerokość wykresu: 595.28 - 56.68 - 70.85
+                        width: 467.75,
                         height: 250, 
-                        margin: [56.68, 0, 70.85, 20] // 2 cm od lewej, 2,5 cm od prawej
+                        margin: [56.68, 0, 70.85, 20]
                     }
                 );
     
