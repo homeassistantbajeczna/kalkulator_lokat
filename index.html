@@ -2168,7 +2168,7 @@
                     },
                     background: watermark,
                     content: [
-                        { text: 'Podsumowanie wyników lokaty', style: 'header', margin: [56.68, 20, 0, 10], alignment: 'center' }, // Przesunięcie o 2 cm w prawo
+                        { text: 'Podsumowanie wyników lokaty', style: 'header', margin: [56.68, 20, 0, 10], alignment: 'center' },
                         { text: "Podsumowanie:", style: 'sectionHeader', margin: [28.35, 30, 0, 15] },
                         { 
                             ul: summaryItems.map(item => ({
@@ -2193,7 +2193,7 @@
                 // Harmonogram tylko, jeśli nie jest zwinięty
                 if (kapitalizacja !== "naKoniec" && tableData.length > 0 && !isHarmonogramCollapsed) {
                     docDefinition.content.push(
-                        { text: "Harmonogram odsetek", style: 'sectionHeader', alignment: 'center', margin: [56.68, 10, 0, 5] }, // Przesunięcie o 2 cm w prawo
+                        { text: "Harmonogram odsetek", style: 'sectionHeader', alignment: 'center', margin: [56.68, 10, 0, 5] },
                         {
                             table: {
                                 headerRows: 1,
@@ -2225,15 +2225,14 @@
                         text: "Wykres liniowy wartości lokaty w czasie", 
                         style: 'sectionHeader', 
                         alignment: 'center', 
-                        margin: [56.68, 20, 0, 10], // Przesunięcie o 2 cm w prawo
+                        margin: [56.68, 20, 0, 10], 
                         pageBreak: tableData.length > 10 && !isHarmonogramCollapsed ? 'before' : 'none' 
                     },
                     { 
                         image: lineChartImage, 
-                        width: 500, 
+                        width: 425.24, // Szerokość wykresu: 595.28 - 85.02 - 85.02
                         height: 250, 
-                        alignment: 'center', 
-                        margin: [56.68, 0, 0, 20] // Przesunięcie o 2 cm w prawo
+                        margin: [85.02, 0, 85.02, 20] // 3 cm od lewej i prawej krawędzi
                     }
                 );
     
