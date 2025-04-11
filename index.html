@@ -1971,11 +1971,23 @@
         else dataZakonczenia.setFullYear(dataZakonczenia.getFullYear() + dlugoscUmowy);
     
         const summaryBars = document.querySelector(".summary-bars");
+        const formatNumber = (num) => {
+            return parseFloat(num).toLocaleString('pl-PL', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+                useGrouping: true
+            });
+        };
+    
         const summaryItems = Array.from(summaryBars.children).map(bar => {
             const labelElement = bar.querySelector(".label");
             const valueElement = bar.querySelector(".value");
             const label = labelElement ? labelElement.textContent.replace("Całkowita kwota po zakończeniu:", "Kwota netto po zakończeniu:") : "Brak etykiety";
-            const value = valueElement ? valueElement.textContent : "Brak wartości";
+            let value = valueElement ? valueElement.textContent : "Brak wartości";
+            // Usuwamy " zł" jeśli istnieje, parsujemy i formatujemy ponownie
+            value = value.replace(" zł", "").replace(/\s/g, "").replace(",", ".");
+            const parsedValue = parseFloat(value);
+            value = isNaN(parsedValue) ? "Brak wartości" : `${formatNumber(parsedValue)} zł`;
             return { label, value };
         });
     
@@ -1989,14 +2001,6 @@
             "Zysk netto",
             "Suma netto"
         ];
-    
-        const formatNumber = (num) => {
-            return parseFloat(num).toLocaleString('pl-PL', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-                useGrouping: true
-            });
-        };
     
         const tableData = kapitalizacja !== "naKoniec" ? state.harmonogramData.map(row => [
             row.okres.toString(),
@@ -2156,15 +2160,15 @@
                         margin: [40, 20, 40, 0],
                         columns: [
                             { image: logoBase64, width: 100, alignment: 'center', margin: [0, 0, 0, 20] },
-                            { text: `Data: ${today}`, alignment: 'right', fontSize: 8, margin: [0, 0, 0, 20] } // Przesunięcie w prawo o 8 mm
+                            { text: `Data: ${today}`, alignment: 'right', fontSize: 8, margin: [0, 0, 0, 20] }
                         ]
                     } : { 
                         margin: [40, 20, 40, 0], 
-                        text: `Data: ${today}`, alignment: 'right', fontSize: 8, margin: [0, 0, 0, 20] // Przesunięcie w prawo o 8 mm
+                        text: `Data: ${today}`, alignment: 'right', fontSize: 8, margin: [0, 0, 0, 20]
                     },
                     background: watermark,
                     content: [
-                        { text: 'Podsumowanie wyników lokaty', style: 'header', margin: [14.17, 20, 65.19, 10], alignment: 'center' }, // Dopasowanie marginesów
+                        { text: 'Podsumowanie wyników lokaty', style: 'header', margin: [0, 20, 0, 10], alignment: 'center' }, // Wyśrodkowanie względem całej kartki
                         { text: "Podsumowanie:", style: 'sectionHeader', margin: [28.35, 30, 0, 15] },
                         { 
                             ul: summaryItems.map(item => ({
@@ -2189,7 +2193,7 @@
                 // Harmonogram tylko, jeśli nie jest zwinięty
                 if (kapitalizacja !== "naKoniec" && tableData.length > 0 && !isHarmonogramCollapsed) {
                     docDefinition.content.push(
-                        { text: "Harmonogram odsetek", style: 'sectionHeader', alignment: 'center', margin: [14.17, 10, 65.19, 5] }, // Dopasowanie marginesów
+                        { text: "Harmonogram odsetek", style: 'sectionHeader', alignment: 'center', margin: [0, 10, 0, 5] }, // Wyśrodkowanie względem całej kartki
                         {
                             table: {
                                 headerRows: 1,
@@ -2221,7 +2225,7 @@
                         text: "Wykres liniowy wartości lokaty w czasie", 
                         style: 'sectionHeader', 
                         alignment: 'center', 
-                        margin: [14.17, 20, 65.19, 10], // Dopasowanie marginesów
+                        margin: [0, 20, 0, 10], // Wyśrodkowanie względem całej kartki
                         pageBreak: tableData.length > 10 && !isHarmonogramCollapsed ? 'before' : 'none' 
                     },
                     { 
@@ -2229,7 +2233,7 @@
                         width: 500, 
                         height: 250, 
                         alignment: 'center', 
-                        margin: [14.17, 0, 65.19, 20] // Dopasowanie marginesów dla wyśrodkowania
+                        margin: [0, 0, 0, 20] // Wyśrodkowanie względem całej kartki
                     }
                 );
     
