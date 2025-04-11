@@ -2168,7 +2168,7 @@
                     },
                     background: watermark,
                     content: [
-                        { text: 'Podsumowanie wyników lokaty', style: 'header', margin: [0, 20, 0, 10], alignment: 'center' }, // Wyśrodkowanie względem całej kartki
+                        { text: 'Podsumowanie wyników lokaty', style: 'header', margin: [56.68, 20, 0, 10], alignment: 'center' }, // Przesunięcie o 2 cm w prawo
                         { text: "Podsumowanie:", style: 'sectionHeader', margin: [28.35, 30, 0, 15] },
                         { 
                             ul: summaryItems.map(item => ({
@@ -2193,7 +2193,7 @@
                 // Harmonogram tylko, jeśli nie jest zwinięty
                 if (kapitalizacja !== "naKoniec" && tableData.length > 0 && !isHarmonogramCollapsed) {
                     docDefinition.content.push(
-                        { text: "Harmonogram odsetek", style: 'sectionHeader', alignment: 'center', margin: [0, 10, 0, 5] }, // Wyśrodkowanie względem całej kartki
+                        { text: "Harmonogram odsetek", style: 'sectionHeader', alignment: 'center', margin: [56.68, 10, 0, 5] }, // Przesunięcie o 2 cm w prawo
                         {
                             table: {
                                 headerRows: 1,
@@ -2225,7 +2225,7 @@
                         text: "Wykres liniowy wartości lokaty w czasie", 
                         style: 'sectionHeader', 
                         alignment: 'center', 
-                        margin: [0, 20, 0, 10], // Wyśrodkowanie względem całej kartki
+                        margin: [56.68, 20, 0, 10], // Przesunięcie o 2 cm w prawo
                         pageBreak: tableData.length > 10 && !isHarmonogramCollapsed ? 'before' : 'none' 
                     },
                     { 
@@ -2233,7 +2233,7 @@
                         width: 500, 
                         height: 250, 
                         alignment: 'center', 
-                        margin: [0, 0, 0, 20] // Wyśrodkowanie względem całej kartki
+                        margin: [56.68, 0, 0, 20] // Przesunięcie o 2 cm w prawo
                     }
                 );
     
