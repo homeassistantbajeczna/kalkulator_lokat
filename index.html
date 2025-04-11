@@ -2011,11 +2011,39 @@
     
         const calculateColumnWidths = () => {
             const allRows = tableData.length ? [headers, ...tableData] : [headers];
-            return headers.map((_, colIndex) => {
-                const maxLength = Math.max(...allRows.map(row => row[colIndex] ? row[colIndex].length : 0));
-                const baseWidth = maxLength * 4;
-                return Math.min(Math.max(baseWidth, 30), 100);
+            const pageWidth = 595.28; // Szerokość strony A4 w punktach
+            const leftMargin = 14.17; // 0,5 cm z lewej
+            const rightMargin = 65.19; // 2,3 cm z prawej
+            const totalMargin = leftMargin + rightMargin; // Suma marginesów bocznych
+            const availableWidth = pageWidth - totalMargin; // Dostępna szerokość strony
+    
+            console.log(`Lewy margines: ${leftMargin} punktów (0,5 cm)`);
+            console.log(`Prawy margines: ${rightMargin} punktów (2,3 cm)`);
+            console.log(`Dostępna szerokość: ${availableWidth} punktów`);
+    
+            // Oblicz maksymalne długości dla nagłówków i wierszy
+            const headerLengths = headers.map(header => header.length);
+            const contentLengths = headers.map((_, colIndex) => {
+                const maxLength = Math.max(...allRows.slice(1).map(row => row[colIndex] ? row[colIndex].length : 0));
+                return maxLength;
             });
+    
+            // Weź pod uwagę zarówno nagłówki, jak i zawartość, z minimalną szerokością
+            const maxLengths = headerLengths.map((headerLength, i) => Math.max(headerLength, contentLengths[i]));
+            const totalLength = maxLengths.reduce((sum, length) => sum + length, 0);
+    
+            // Ustaw minimalną szerokość kolumny
+            const minWidth = 40; // Minimalna szerokość kolumny, aby nagłówki mogły się zawijać
+            const columnWidths = maxLengths.map(length => {
+                const proportion = length / totalLength;
+                const calculatedWidth = proportion * availableWidth;
+                return Math.max(minWidth, calculatedWidth); // Zapewnia minimalną szerokość
+            });
+    
+            // Upewnij się, że suma szerokości kolumn dokładnie odpowiada dostępnej szerokości
+            const totalCalculatedWidth = columnWidths.reduce((sum, width) => sum + width, 0);
+            const adjustmentFactor = availableWidth / totalCalculatedWidth;
+            return columnWidths.map(width => width * adjustmentFactor);
         };
     
         const columnWidths = calculateColumnWidths();
@@ -2133,8 +2161,8 @@
                     },
                     background: watermark,
                     content: [
-                        { text: 'Podsumowanie wyników lokaty', style: 'header', margin: [28.35, 20, 0, 10] }, // Dodano lewy margines 28.35 px (1 cm)
-                        { text: "Podsumowanie:", style: 'sectionHeader', margin: [28.35, 30, 0, 15] }, // Dodano lewy margines 28.35 px (1 cm)
+                        { text: 'Podsumowanie wyników lokaty', style: 'header', margin: [28.35, 20, 0, 10] },
+                        { text: "Podsumowanie:", style: 'sectionHeader', margin: [28.35, 30, 0, 15] },
                         { 
                             ul: summaryItems.map(item => ({
                                 text: [
@@ -2142,7 +2170,7 @@
                                     { text: item.value, style: 'listItem', bold: true }
                                 ]
                             })), 
-                            margin: [28.35, 0, 0, 30] // Dodano lewy margines 28.35 px (1 cm)
+                            margin: [28.35, 0, 0, 30]
                         }
                     ],
                     styles: {
@@ -2158,7 +2186,7 @@
                 // Harmonogram tylko, jeśli nie jest zwinięty
                 if (kapitalizacja !== "naKoniec" && tableData.length > 0 && !isHarmonogramCollapsed) {
                     docDefinition.content.push(
-                        { text: "Harmonogram odsetek", style: 'sectionHeader', alignment: 'center', margin: [0, 10, 0, 5] },
+                        { text: "Harmonogram odsetek", style: 'sectionHeader', alignment: 'center', margin: [0, 10, 0, 5], pageMargins: [20, 80, 20, 40] },
                         {
                             table: {
                                 headerRows: 1,
@@ -2177,10 +2205,11 @@
                                 paddingTop: function () { return 2; },
                                 paddingBottom: function () { return 2; }
                             },
-                            alignment: 'center',
-                            margin: [40, 10, 40, 10]
+                            pageMargins: [14.17, 60, 65.19, 20], // 0,5 cm z lewej, 2,3 cm z prawej
+                            margin: [14.17, 0, 65.19, 0], // Ręczne ustawienie marginesów tabeli
+                            alignment: 'center'
                         },
-                        { text: footerNoteText, style: 'footerNote', margin: [40, 5, 0, 10] }
+                        { text: footerNoteText, style: 'footerNote', margin: [40, 5, 0, 10], pageMargins: [20, 80, 20, 40] }
                     );
                 }
     
