@@ -1761,7 +1761,6 @@
         let poprzednieOprocentowanie = oprocentowanie;
     
         if (kapitalizacja === "naKoniec") {
-            // Dla "Na koniec okresu" obliczamy tylko końcowy wynik, bez harmonogramu
             const lata = dni / dniWRoku;
             const oprocentowanieOkresowe = (aktualneOprocentowanie / 100) * lata;
             const odsetkiBrutto = kwota * oprocentowanieOkresowe;
@@ -1773,7 +1772,6 @@
             sumaZyskuNetto = zyskNetto;
             kapital = kwota + zyskNetto;
         } else {
-            // Dla innych kapitalizacji generujemy pełny harmonogram
             for (let okres = 1; okres <= liczbaOkresowTabela; okres++) {
                 if (zmienneOprocentowanie) {
                     let okresWJednostce;
@@ -1839,7 +1837,7 @@
         const harmonogramContainer = document.querySelector(".harmonogram");
         if (kapitalizacja === "naKoniec") {
             harmonogramContainer.style.display = "none";
-            elements.harmonogramTabela.innerHTML = ""; // Czyścimy tabelkę
+            elements.harmonogramTabela.innerHTML = "";
         } else {
             harmonogramContainer.style.display = "block";
             elements.harmonogramTabela.innerHTML = "";
@@ -1890,6 +1888,7 @@
             }
         }
     
+        const isDarkMode = document.body.classList.contains('dark-mode');
         state.chartLine = new Chart(elements.lokatyChartLine, {
             type: 'line',
             data: {
@@ -1907,8 +1906,45 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
-                    y: { beginAtZero: false, title: { display: true, text: 'Wartość (zł)' } },
-                    x: { title: { display: true, text: jednostka === "dni" ? "Dni" : jednostka === "miesiace" ? "Miesiące" : "Lata" } }
+                    y: { 
+                        beginAtZero: false, 
+                        title: { 
+                            display: true, 
+                            text: 'Wartość (zł)', 
+                            color: isDarkMode ? '#e0e0e0' : '#333333'
+                        },
+                        ticks: {
+                            color: isDarkMode ? '#e0e0e0' : '#333333',
+                            callback: function(value) {
+                                return formatNumber(value) + ' zł'; // Dodajemy formatowanie i ' zł'
+                            }
+                        },
+                        grid: {
+                            color: isDarkMode ? '#666666' : '#e0e0e0',
+                            borderColor: isDarkMode ? '#e0e0e0' : '#333333'
+                        }
+                    },
+                    x: { 
+                        title: { 
+                            display: true, 
+                            text: jednostka === "dni" ? "Dni" : jednostka === "miesiace" ? "Miesiące" : "Lata",
+                            color: isDarkMode ? '#e0e0e0' : '#333333'
+                        },
+                        ticks: {
+                            color: isDarkMode ? '#e0e0e0' : '#333333'
+                        },
+                        grid: {
+                            color: isDarkMode ? '#666666' : '#e0e0e0',
+                            borderColor: isDarkMode ? '#e0e0e0' : '#333333'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: isDarkMode ? '#e0e0e0' : '#333333'
+                        }
+                    }
                 }
             }
         });
@@ -2062,8 +2098,7 @@
             yTitleColor: state.chartLine.options.scales.y.title.color,
             xTicksColor: state.chartLine.options.scales.x.ticks.color,
             yTicksColor: state.chartLine.options.scales.y.ticks.color,
-            legendColor: state.chartLine.options.plugins.legend.labels.color,
-            yTicksCallback: state.chartLine.options.scales.y.ticks.callback
+            legendColor: state.chartLine.options.plugins.legend.labels.color
         };
     
         state.chartLine.options.scales.x.grid.color = '#e0e0e0';
@@ -2075,9 +2110,6 @@
         state.chartLine.options.scales.x.ticks.color = '#333333';
         state.chartLine.options.scales.y.ticks.color = '#333333';
         state.chartLine.options.plugins.legend.labels.color = '#333333';
-        state.chartLine.options.scales.y.ticks.callback = function(value) {
-            return formatNumber(value);
-        };
         state.chartLine.update();
     
         requestAnimationFrame(() => {
@@ -2092,7 +2124,6 @@
             state.chartLine.options.scales.x.ticks.color = originalColors.xTicksColor;
             state.chartLine.options.scales.y.ticks.color = originalColors.yTicksColor;
             state.chartLine.options.plugins.legend.labels.color = originalColors.legendColor;
-            state.chartLine.options.scales.y.ticks.callback = originalColors.yTicksCallback;
             state.chartLine.update();
     
             function getBase64ImageFromUrl(url) {
