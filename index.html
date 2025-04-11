@@ -1194,6 +1194,15 @@
     }
 </style>
 <script>
+
+    const formatNumber = (num) => {
+        return parseFloat(num).toLocaleString('pl-PL', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+            useGrouping: true // Wymuszenie separatora tysięcy
+        });
+    };
+    
     const elements = {
         formSection: document.getElementById("formSection"),
         resultSection: document.getElementById("resultSection"),
@@ -1812,14 +1821,14 @@
     
         const summaryBars = document.querySelector(".summary-bars");
         summaryBars.innerHTML = `
-            <div class="summary-bar" data-tooltip="${kwota.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł"><span class="label">Kwota lokaty:</span> <span class="value">${kwota.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</span></div>
-            <div class="summary-bar" data-tooltip="${sumaOdsetekBrutto.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł"><span class="label">Odsetki brutto:</span> <span class="value">${sumaOdsetekBrutto.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</span></div>
-            <div class="summary-bar" data-tooltip="${sumaPodatku.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł"><span class="label">Podatek:</span> <span class="value">${sumaPodatku.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</span></div>
-            <div class="summary-bar" data-tooltip="${sumaZyskuNetto.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł"><span class="label">Odsetki netto:</span> <span class="value">${sumaZyskuNetto.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</span></div>
-            <div class="summary-bar" data-tooltip="${kapital.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł"><span class="label">Kwota netto po zakończeniu:</span> <span class="value">${kapital.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</span></div>
+            <div class="summary-bar" data-tooltip="${formatNumber(kwota)} zł"><span class="label">Kwota lokaty:</span> <span class="value">${formatNumber(kwota)} zł</span></div>
+            <div class="summary-bar" data-tooltip="${formatNumber(sumaOdsetekBrutto)} zł"><span class="label">Odsetki brutto:</span> <span class="value">${formatNumber(sumaOdsetekBrutto)} zł</span></div>
+            <div class="summary-bar" data-tooltip="${formatNumber(sumaPodatku)} zł"><span class="label">Podatek:</span> <span class="value">${formatNumber(sumaPodatku)} zł</span></div>
+            <div class="summary-bar" data-tooltip="${formatNumber(sumaZyskuNetto)} zł"><span class="label">Odsetki netto:</span> <span class="value">${formatNumber(sumaZyskuNetto)} zł</span></div>
+            <div class="summary-bar" data-tooltip="${formatNumber(kapital)} zł"><span class="label">Kwota netto po zakończeniu:</span> <span class="value">${formatNumber(kapital)} zł</span></div>
             <div class="summary-bar" data-tooltip="${dataZakonczenia.toLocaleDateString('pl-PL')}"><span class="label">Data zakończenia:</span> <span class="value">${dataZakonczenia.toLocaleDateString('pl-PL')}</span></div>
         `;
-            
+    
         const naglowekOkres = document.getElementById("pierwszaKolumnaNaglowek");
         if (kapitalizacja === "naKoniec") {
             naglowekOkres.textContent = jednostka === "dni" ? "Dzień" : jednostka === "miesiace" ? "Miesiąc" : "Rok";
@@ -1838,13 +1847,13 @@
                 const tr = document.createElement("tr");
                 tr.innerHTML = `
                     <td>${row.okres}</td>
-                    <td>${parseFloat(row.wartoscLokaty).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
-                    <td>${row.zmianaOprocentowania ? '<span class="star">★</span>' : ''}${parseFloat(row.oprocentowanie).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%</td>
-                    <td>${parseFloat(row.odsetkiBrutto).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
-                    <td>${parseFloat(row.sumaOdsetek).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
-                    <td>${parseFloat(row.podatek).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
-                    <td>${parseFloat(row.zyskNetto).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
-                    <td>${parseFloat(row.sumaNetto).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
+                    <td>${formatNumber(row.wartoscLokaty)} zł</td>
+                    <td>${row.zmianaOprocentowania ? '<span class="star">★</span>' : ''}${formatNumber(row.oprocentowanie)}%</td>
+                    <td>${formatNumber(row.odsetkiBrutto)} zł</td>
+                    <td>${formatNumber(row.sumaOdsetek)} zł</td>
+                    <td>${formatNumber(row.podatek)} zł</td>
+                    <td>${formatNumber(row.zyskNetto)} zł</td>
+                    <td>${formatNumber(row.sumaNetto)} zł</td>
                 `;
                 elements.harmonogramTabela.appendChild(tr);
             });
@@ -1971,13 +1980,6 @@
         else dataZakonczenia.setFullYear(dataZakonczenia.getFullYear() + dlugoscUmowy);
     
         const summaryBars = document.querySelector(".summary-bars");
-        const formatNumber = (num) => {
-            return parseFloat(num).toLocaleString('pl-PL', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-                useGrouping: true
-            });
-        };
     
         const summaryItems = Array.from(summaryBars.children).map(bar => {
             const labelElement = bar.querySelector(".label");
