@@ -2156,15 +2156,15 @@
                         margin: [40, 20, 40, 0],
                         columns: [
                             { image: logoBase64, width: 100, alignment: 'center', margin: [0, 0, 0, 20] },
-                            { text: `Data: ${today}`, alignment: 'right', fontSize: 8, margin: [0, 0, 20, 20] }
+                            { text: `Data: ${today}`, alignment: 'right', fontSize: 8, margin: [0, 0, 0, 20] } // Przesunięcie w prawo o 8 mm
                         ]
                     } : { 
                         margin: [40, 20, 40, 0], 
-                        text: `Data: ${today}`, alignment: 'right', fontSize: 8, margin: [0, 0, 20, 20] 
+                        text: `Data: ${today}`, alignment: 'right', fontSize: 8, margin: [0, 0, 0, 20] // Przesunięcie w prawo o 8 mm
                     },
                     background: watermark,
                     content: [
-                        { text: 'Podsumowanie wyników lokaty', style: 'header', margin: [28.35, 20, 0, 10] },
+                        { text: 'Podsumowanie wyników lokaty', style: 'header', margin: [14.17, 20, 65.19, 10], alignment: 'center' }, // Dopasowanie marginesów
                         { text: "Podsumowanie:", style: 'sectionHeader', margin: [28.35, 30, 0, 15] },
                         { 
                             ul: summaryItems.map(item => ({
@@ -2189,7 +2189,7 @@
                 // Harmonogram tylko, jeśli nie jest zwinięty
                 if (kapitalizacja !== "naKoniec" && tableData.length > 0 && !isHarmonogramCollapsed) {
                     docDefinition.content.push(
-                        { text: "Harmonogram odsetek", style: 'sectionHeader', alignment: 'center', margin: [0, 10, 0, 5] },
+                        { text: "Harmonogram odsetek", style: 'sectionHeader', alignment: 'center', margin: [14.17, 10, 65.19, 5] }, // Dopasowanie marginesów
                         {
                             table: {
                                 headerRows: 1,
@@ -2203,8 +2203,8 @@
                                 fillColor: function (rowIndex) { return (rowIndex === 0) ? '#C2B280' : (rowIndex % 2 === 0 ? '#F5F5F5' : null); },
                                 hLineWidth: function () { return 0.5; },
                                 vLineWidth: function () { return 0.5; },
-                                paddingLeft: function () { return 1; }, // Zmniejszono z 4 na 1
-                                paddingRight: function () { return 1; }, // Zmniejszono z 4 na 1
+                                paddingLeft: function () { return 1; },
+                                paddingRight: function () { return 1; },
                                 paddingTop: function () { return 2; },
                                 paddingBottom: function () { return 2; }
                             },
@@ -2212,7 +2212,7 @@
                             margin: [14.17, 0, 65.19, 0], // Ręczne ustawienie marginesów tabeli
                             alignment: 'center'
                         },
-                        { text: footerNoteText, style: 'footerNote', margin: [40, 5, 0, 10] }
+                        { text: footerNoteText, style: 'footerNote', margin: [14.17, 5, 65.19, 10] }
                     );
                 }
     
@@ -2221,7 +2221,7 @@
                         text: "Wykres liniowy wartości lokaty w czasie", 
                         style: 'sectionHeader', 
                         alignment: 'center', 
-                        margin: [0, 20, 0, 10], 
+                        margin: [14.17, 20, 65.19, 10], // Dopasowanie marginesów
                         pageBreak: tableData.length > 10 && !isHarmonogramCollapsed ? 'before' : 'none' 
                     },
                     { 
@@ -2229,7 +2229,7 @@
                         width: 500, 
                         height: 250, 
                         alignment: 'center', 
-                        margin: [0, 0, 0, 20]
+                        margin: [14.17, 0, 65.19, 20] // Dopasowanie marginesów dla wyśrodkowania
                     }
                 );
     
