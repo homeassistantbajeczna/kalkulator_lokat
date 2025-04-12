@@ -2101,24 +2101,17 @@
         state.chartLine.canvas.width = chartWidth;
         state.chartLine.canvas.height = chartHeight;
     
-        // Zwiększenie paddingu, aby zmieścić etykiety i legendę
+        // Dodanie paddingu, aby dane zaczynały się i kończyły 15 punktów od krawędzi
         const originalPadding = state.chartLine.options.layout.padding || {};
         state.chartLine.options.layout.padding = {
-            left: 50, // Większy padding z lewej, aby zmieścić etykiety osi Y
-            right: 20, // Padding z prawej
-            top: 30, // Padding u góry, aby zmieścić legendę
-            bottom: 20 // Padding na dole, aby zmieścić etykiety osi X
+            left: 15, // 15 pikseli paddingu z lewej
+            right: 15, // 15 pikseli paddingu z prawej
+            top: originalPadding.top || 0,
+            bottom: originalPadding.bottom || 0
         };
     
-        // Ustawienie zakresu danych na osi X, aby linie zaczynały się i kończyły w odpowiednich miejscach
-        const originalScales = state.chartLine.options.scales;
-        const dataLength = state.harmonogramData.length;
-        state.chartLine.options.scales.x = {
-            ...state.chartLine.options.scales.x,
-            min: -0.5, // Zaczynamy pół jednostki przed pierwszym okresem
-            max: dataLength - 0.5, // Kończymy pół jednostki po ostatnim okresie
-            offset: false // Wyłączamy offset, aby precyzyjnie kontrolować zakres
-        };
+        // Ustawienie offsetu dla osi X, aby dane były równomiernie rozłożone
+        state.chartLine.options.scales.x.offset = true; // Włącza offset, aby dane nie zaczynały się od krawędzi
     
         const originalColors = {
             xGridColor: state.chartLine.options.scales.x.grid.color,
@@ -2157,7 +2150,7 @@
             state.chartLine.options.scales.y.ticks.color = originalColors.yTicksColor;
             state.chartLine.options.plugins.legend.labels.color = originalColors.legendColor;
             state.chartLine.options.layout.padding = originalPadding; // Przywracamy oryginalny padding
-            state.chartLine.options.scales = originalScales; // Przywracamy oryginalne ustawienia skal
+            state.chartLine.options.scales.x.offset = false; // Przywracamy domyślny offset
             state.chartLine.options.responsive = true; // Przywracamy responsywność
             state.chartLine.options.maintainAspectRatio = true; // Przywracamy proporcje
             state.chartLine.update();
@@ -2269,27 +2262,21 @@
                                 margin: [14.17, 0, 65.19, 0],
                                 alignment: 'center'
                             },
-                            { text: footerNoteText, style: 'footerNote', margin: [14.17, 5, 65.19, 10] }
-                        ] : []),
+                            { 
+                                text: footerNoteText, 
+                                style: 'footerNote', 
+                                margin: [14.17, 5, 65.19, 10], // Wyrównanie z tabelą: lewy margines 14.17, prawy 65.19
+                                pageMargins: [14.17, 60, 14.17, 20] 
+                            }
+                        ]),
                         {
-                            stack: [
-                                { 
-                                    text: "Wykres liniowy wartości lokaty w czasie", 
-                                    style: 'sectionHeader', 
-                                    alignment: 'center', 
-                                    margin: [0, 20, 0, 10] // Marginesy wewnętrzne w stack
-                                },
-                                { 
-                                    image: lineChartImage, 
-                                    width: 485.92, // Szerokość tabeli minus 15 punktów z każdej strony
-                                    height: 250, 
-                                    alignment: 'center',
-                                    margin: [0, 0, 0, 20] // Marginesy wewnętrzne w stack
-                                }
-                            ],
-                            margin: [29.17, 0, 80.19, 0], // Marginesy zewnętrzne stack: 14.17 + 15 z lewej, 65.19 + 15 z prawej
+                            text: "Wykres liniowy wartości lokaty w czasie",
+                            style: 'sectionHeader',
+                            alignment: 'center',
+                            margin: [0, 10, 0, 5],
                             pageBreak: tableData.length > 10 && !isHarmonogramCollapsed ? 'before' : 'none'
-                        }
+                        },
+                        { image: lineChartImage, width: 500, height: 250, alignment: 'center', margin: [0, 5, 0, 0] }
                     ],
                     styles: {
                         header: { fontSize: 16, bold: true, alignment: 'center' },
