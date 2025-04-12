@@ -2089,6 +2089,30 @@
         const columnWidths = calculateColumnWidths();
         const lineChartCanvas = document.getElementById("lokatyChartLine");
     
+        // Ustawienie stałej szerokości canvasu
+        const chartWidth = 485.92; // Szerokość wykresu w pikselach (taka sama jak w PDF)
+        const chartHeight = 250; // Stała wysokość
+        lineChartCanvas.width = chartWidth;
+        lineChartCanvas.height = chartHeight;
+    
+        // Aktualizacja opcji Chart.js
+        state.chartLine.options.responsive = false; // Wyłączamy responsywność
+        state.chartLine.options.maintainAspectRatio = false; // Wyłączamy proporcje
+        state.chartLine.canvas.width = chartWidth;
+        state.chartLine.canvas.height = chartHeight;
+    
+        // Dodanie paddingu, aby dane zaczynały się i kończyły 15 punktów od krawędzi
+        const originalPadding = state.chartLine.options.layout.padding || {};
+        state.chartLine.options.layout.padding = {
+            left: 15, // 15 pikseli paddingu z lewej
+            right: 15, // 15 pikseli paddingu z prawej
+            top: originalPadding.top || 0,
+            bottom: originalPadding.bottom || 0
+        };
+    
+        // Ustawienie offsetu dla osi X, aby dane były równomiernie rozłożone
+        state.chartLine.options.scales.x.offset = true; // Włącza offset, aby dane nie zaczynały się od krawędzi
+    
         const originalColors = {
             xGridColor: state.chartLine.options.scales.x.grid.color,
             yGridColor: state.chartLine.options.scales.y.grid.color,
@@ -2115,6 +2139,7 @@
         requestAnimationFrame(() => {
             const lineChartImage = lineChartCanvas.toDataURL("image/png");
     
+            // Przywracanie oryginalnych ustawień Chart.js
             state.chartLine.options.scales.x.grid.color = originalColors.xGridColor;
             state.chartLine.options.scales.y.grid.color = originalColors.yGridColor;
             state.chartLine.options.scales.x.grid.borderColor = originalColors.xGridBorderColor;
@@ -2124,6 +2149,10 @@
             state.chartLine.options.scales.x.ticks.color = originalColors.xTicksColor;
             state.chartLine.options.scales.y.ticks.color = originalColors.yTicksColor;
             state.chartLine.options.plugins.legend.labels.color = originalColors.legendColor;
+            state.chartLine.options.layout.padding = originalPadding; // Przywracamy oryginalny padding
+            state.chartLine.options.scales.x.offset = false; // Przywracamy domyślny offset
+            state.chartLine.options.responsive = true; // Przywracamy responsywność
+            state.chartLine.options.maintainAspectRatio = true; // Przywracamy proporcje
             state.chartLine.update();
     
             function getBase64ImageFromUrl(url) {
@@ -2245,13 +2274,13 @@
                                 },
                                 { 
                                     image: lineChartImage, 
-                                    width: 450, 
+                                    width: 485.92, // Szerokość tabeli minus 15 punktów z każdej strony
                                     height: 250, 
                                     alignment: 'center',
                                     margin: [0, 0, 0, 20] // Marginesy wewnętrzne w stack
                                 }
                             ],
-                            margin: [74.17, 0, 65.19, 0], // Marginesy zewnętrzne stack, zgodne z tabelą
+                            margin: [29.17, 0, 80.19, 0], // Marginesy zewnętrzne stack: 14.17 + 15 z lewej, 65.19 + 15 z prawej
                             pageBreak: tableData.length > 10 && !isHarmonogramCollapsed ? 'before' : 'none'
                         }
                     ],
