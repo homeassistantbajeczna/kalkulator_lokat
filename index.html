@@ -2089,6 +2089,18 @@
         const columnWidths = calculateColumnWidths();
         const lineChartCanvas = document.getElementById("lokatyChartLine");
     
+        // Ustawienie stałej szerokości i wysokości canvasu
+        const chartWidth = 400; // Stała szerokość w pikselach
+        const chartHeight = 250; // Stała wysokość w pikselach
+        lineChartCanvas.width = chartWidth;
+        lineChartCanvas.height = chartHeight;
+    
+        // Aktualizacja opcji Chart.js, aby dopasować się do nowej szerokości canvasu
+        state.chartLine.options.responsive = false; // Wyłączamy responsywność, aby wymusić stały rozmiar
+        state.chartLine.options.maintainAspectRatio = false; // Wyłączamy zachowanie proporcji, ponieważ ustawiamy je ręcznie
+        state.chartLine.canvas.width = chartWidth;
+        state.chartLine.canvas.height = chartHeight;
+    
         const originalColors = {
             xGridColor: state.chartLine.options.scales.x.grid.color,
             yGridColor: state.chartLine.options.scales.y.grid.color,
@@ -2124,6 +2136,8 @@
             state.chartLine.options.scales.x.ticks.color = originalColors.xTicksColor;
             state.chartLine.options.scales.y.ticks.color = originalColors.yTicksColor;
             state.chartLine.options.plugins.legend.labels.color = originalColors.legendColor;
+            state.chartLine.options.responsive = true; // Przywracamy responsywność
+            state.chartLine.options.maintainAspectRatio = true; // Przywracamy proporcje
             state.chartLine.update();
     
             function getBase64ImageFromUrl(url) {
@@ -2245,13 +2259,13 @@
                                 },
                                 { 
                                     image: lineChartImage, 
-                                    width: 515.92, 
-                                    height: 250, 
+                                    width: 400, // Stała szerokość w PDF
+                                    height: 250, // Stała wysokość
                                     alignment: 'center',
                                     margin: [0, 0, 0, 20] // Marginesy wewnętrzne w stack
                                 }
                             ],
-                            margin: [74.17, 5, 65.19, 10], // Marginesy zewnętrzne stack, zgodne z tabelą
+                            margin: [(595.28 - 400) / 2, 5, (595.28 - 400) / 2, 10], // Wyśrodkowanie: (cała szerokość - szerokość wykresu) / 2
                             pageBreak: tableData.length > 10 && !isHarmonogramCollapsed ? 'before' : 'none'
                         }
                     ],
