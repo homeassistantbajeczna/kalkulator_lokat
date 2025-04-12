@@ -2208,6 +2208,51 @@
                                 ]
                             })), 
                             margin: [28.35, 0, 0, 30]
+                        },
+                        ...(kapitalizacja !== "naKoniec" && tableData.length > 0 && !isHarmonogramCollapsed ? [
+                            { text: "Harmonogram odsetek", style: 'sectionHeader', alignment: 'center', margin: [56.68, 10, 0, 5] },
+                            {
+                                table: {
+                                    headerRows: 1,
+                                    widths: columnWidths,
+                                    body: [
+                                        headers.map(h => ({ text: h, style: 'tableHeader', noWrap: false })),
+                                        ...tableData.map(row => row.map(cell => ({ text: cell, style: 'tableCell', noWrap: false })))
+                                    ]
+                                },
+                                layout: {
+                                    fillColor: function (rowIndex) { return (rowIndex === 0) ? '#C2B280' : (rowIndex % 2 === 0 ? '#F5F5F5' : null); },
+                                    hLineWidth: function () { return 0.5; },
+                                    vLineWidth: function () { return 0.5; },
+                                    paddingLeft: function () { return 1; },
+                                    paddingRight: function () { return 1; },
+                                    paddingTop: function () { return 2; },
+                                    paddingBottom: function () { return 2; }
+                                },
+                                width: 515.92,
+                                margin: [14.17, 0, 65.19, 0],
+                                alignment: 'center'
+                            },
+                            { text: footerNoteText, style: 'footerNote', margin: [14.17, 5, 65.19, 10] }
+                        ] : []),
+                        {
+                            stack: [
+                                { 
+                                    text: "Wykres liniowy wartości lokaty w czasie", 
+                                    style: 'sectionHeader', 
+                                    alignment: 'center', 
+                                    margin: [0, 20, 0, 10] // Marginesy wewnętrzne w stack
+                                },
+                                { 
+                                    image: lineChartImage, 
+                                    width: 467.75, 
+                                    height: 250, 
+                                    alignment: 'center',
+                                    margin: [0, 0, 0, 20] // Marginesy wewnętrzne w stack
+                                }
+                            ],
+                            margin: [14.17, 0, 65.19, 0], // Marginesy zewnętrzne stack, zgodne z tabelą
+                            pageBreak: tableData.length > 10 && !isHarmonogramCollapsed ? 'before' : 'none'
                         }
                     ],
                     styles: {
@@ -2219,51 +2264,6 @@
                         footerNote: { fontSize: 8, italics: true }
                     }
                 };
-    
-                if (kapitalizacja !== "naKoniec" && tableData.length > 0 && !isHarmonogramCollapsed) {
-                    docDefinition.content.push(
-                        { text: "Harmonogram odsetek", style: 'sectionHeader', alignment: 'center', margin: [56.68, 10, 0, 5] },
-                        {
-                            table: {
-                                headerRows: 1,
-                                widths: columnWidths,
-                                body: [
-                                    headers.map(h => ({ text: h, style: 'tableHeader', noWrap: false })),
-                                    ...tableData.map(row => row.map(cell => ({ text: cell, style: 'tableCell', noWrap: false })))
-                                ]
-                            },
-                            layout: {
-                                fillColor: function (rowIndex) { return (rowIndex === 0) ? '#C2B280' : (rowIndex % 2 === 0 ? '#F5F5F5' : null); },
-                                hLineWidth: function () { return 0.5; },
-                                vLineWidth: function () { return 0.5; },
-                                paddingLeft: function () { return 1; },
-                                paddingRight: function () { return 1; },
-                                paddingTop: function () { return 2; },
-                                paddingBottom: function () { return 2; }
-                            },
-                            width: 515.92,
-                            margin: [14.17, 0, 65.19, 0],
-                            alignment: 'center'
-                        },
-                        { text: footerNoteText, style: 'footerNote', margin: [14.17, 5, 65.19, 10] }
-                    );
-                }
-    
-                docDefinition.content.push(
-                    { 
-                        text: "Wykres liniowy wartości lokaty w czasie", 
-                        style: 'sectionHeader', 
-                        alignment: 'center', 
-                        margin: [99.19, 20, 0, 10],
-                        pageBreak: tableData.length > 10 && !isHarmonogramCollapsed ? 'before' : 'none' 
-                    },
-                    { 
-                        image: lineChartImage, 
-                        width: 467.75,
-                        height: 250, 
-                        margin: [56.68, 0, 70.85, 20]
-                    }
-                );
     
                 pdfMake.createPdf(docDefinition).download(`Podsumowanie_Lokaty_${today.replace(/\./g, '-')}.pdf`);
             };
