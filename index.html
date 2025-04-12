@@ -2054,12 +2054,12 @@
             const allRows = tableData.length ? [headers, ...tableData] : [headers];
             const pageWidth = 595.28;
             const leftMargin = 14.17;
-            const rightMargin = 65.19;
+            const rightMargin = 14.17; // Symetryczne marginesy
             const totalMargin = leftMargin + rightMargin;
             const availableWidth = pageWidth - totalMargin;
     
             console.log(`Lewy margines: ${leftMargin} punktów (0,5 cm)`);
-            console.log(`Prawy margines: ${rightMargin} punktów (2,3 cm)`);
+            console.log(`Prawy margines: ${rightMargin} punktów (0,5 cm)`);
             console.log(`Dostępna szerokość: ${availableWidth} punktów`);
     
             const headerLengths = headers.map(header => header.length);
@@ -2088,6 +2088,18 @@
     
         const columnWidths = calculateColumnWidths();
         const lineChartCanvas = document.getElementById("lokatyChartLine");
+    
+        // Ustawienie szerokości canvasu na 500 pikseli, tak jak w działającym kodzie
+        const chartWidth = 500;
+        const chartHeight = 250;
+        lineChartCanvas.width = chartWidth;
+        lineChartCanvas.height = chartHeight;
+    
+        // Aktualizacja opcji Chart.js
+        state.chartLine.options.responsive = false; // Wyłączamy responsywność
+        state.chartLine.options.maintainAspectRatio = false; // Wyłączamy proporcje
+        state.chartLine.canvas.width = chartWidth;
+        state.chartLine.canvas.height = chartHeight;
     
         const originalColors = {
             xGridColor: state.chartLine.options.scales.x.grid.color,
@@ -2124,6 +2136,8 @@
             state.chartLine.options.scales.x.ticks.color = originalColors.xTicksColor;
             state.chartLine.options.scales.y.ticks.color = originalColors.yTicksColor;
             state.chartLine.options.plugins.legend.labels.color = originalColors.legendColor;
+            state.chartLine.options.responsive = true; // Przywracamy responsywność
+            state.chartLine.options.maintainAspectRatio = true; // Przywracamy proporcje
             state.chartLine.update();
     
             function getBase64ImageFromUrl(url) {
@@ -2184,7 +2198,7 @@
     
                 const docDefinition = {
                     pageSize: 'A4',
-                    pageMargins: [14.17, 80, 65.19, 40],
+                    pageMargins: [14.17, 80, 14.17, 40], // Symetryczne marginesy
                     defaultStyle: { font: 'Roboto' },
                     header: logoBase64 ? {
                         margin: [40, 20, 40, 0],
@@ -2229,30 +2243,25 @@
                                     paddingTop: function () { return 2; },
                                     paddingBottom: function () { return 2; }
                                 },
-                                width: 515.92,
-                                margin: [14.17, 0, 65.19, 0],
+                                width: 566.94, // Dostępna szerokość przy symetrycznych marginesach
+                                margin: [14.17, 0, 14.17, 0], // Symetryczne marginesy
                                 alignment: 'center'
                             },
-                            { text: footerNoteText, style: 'footerNote', margin: [14.17, 5, 65.19, 10] }
+                            { text: footerNoteText, style: 'footerNote', margin: [14.17, 5, 14.17, 10] }
                         ] : []),
                         {
-                            stack: [
-                                { 
-                                    text: "Wykres liniowy wartości lokaty w czasie", 
-                                    style: 'sectionHeader', 
-                                    alignment: 'center', 
-                                    margin: [0, 20, 0, 10] // Marginesy wewnętrzne w stack
-                                },
-                                { 
-                                    image: lineChartImage, 
-                                    width: 515.92, 
-                                    height: 250, 
-                                    alignment: 'center',
-                                    margin: [0, 0, 0, 20] // Marginesy wewnętrzne w stack
-                                }
-                            ],
-                            margin: [74.17, 5, 65.19, 10], // Marginesy zewnętrzne stack, zgodne z tabelą
+                            text: "Wykres liniowy wartości lokaty w czasie",
+                            style: 'sectionHeader',
+                            alignment: 'center',
+                            margin: [0, 20, 0, 10],
                             pageBreak: tableData.length > 10 && !isHarmonogramCollapsed ? 'before' : 'none'
+                        },
+                        { 
+                            image: lineChartImage, 
+                            width: 500, // Taka sama szerokość jak w działającym kodzie
+                            height: 250, 
+                            alignment: 'center',
+                            margin: [0, 5, 0, 0] // Takie same marginesy jak w działającym kodzie
                         }
                     ],
                     styles: {
