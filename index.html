@@ -2089,30 +2089,6 @@
         const columnWidths = calculateColumnWidths();
         const lineChartCanvas = document.getElementById("lokatyChartLine");
     
-        // Ustawienie stałej szerokości canvasu
-        const chartWidth = 485.92; // Szerokość wykresu w pikselach (taka sama jak w PDF)
-        const chartHeight = 250; // Stała wysokość
-        lineChartCanvas.width = chartWidth;
-        lineChartCanvas.height = chartHeight;
-    
-        // Aktualizacja opcji Chart.js
-        state.chartLine.options.responsive = false; // Wyłączamy responsywność
-        state.chartLine.options.maintainAspectRatio = false; // Wyłączamy proporcje
-        state.chartLine.canvas.width = chartWidth;
-        state.chartLine.canvas.height = chartHeight;
-    
-        // Dodanie paddingu, aby dane zaczynały się i kończyły 15 punktów od krawędzi
-        const originalPadding = state.chartLine.options.layout.padding || {};
-        state.chartLine.options.layout.padding = {
-            left: 15, // 15 pikseli paddingu z lewej
-            right: 15, // 15 pikseli paddingu z prawej
-            top: originalPadding.top || 0,
-            bottom: originalPadding.bottom || 0
-        };
-    
-        // Ustawienie offsetu dla osi X, aby dane były równomiernie rozłożone
-        state.chartLine.options.scales.x.offset = true; // Włącza offset, aby dane nie zaczynały się od krawędzi
-    
         const originalColors = {
             xGridColor: state.chartLine.options.scales.x.grid.color,
             yGridColor: state.chartLine.options.scales.y.grid.color,
@@ -2139,7 +2115,6 @@
         requestAnimationFrame(() => {
             const lineChartImage = lineChartCanvas.toDataURL("image/png");
     
-            // Przywracanie oryginalnych ustawień Chart.js
             state.chartLine.options.scales.x.grid.color = originalColors.xGridColor;
             state.chartLine.options.scales.y.grid.color = originalColors.yGridColor;
             state.chartLine.options.scales.x.grid.borderColor = originalColors.xGridBorderColor;
@@ -2149,10 +2124,6 @@
             state.chartLine.options.scales.x.ticks.color = originalColors.xTicksColor;
             state.chartLine.options.scales.y.ticks.color = originalColors.yTicksColor;
             state.chartLine.options.plugins.legend.labels.color = originalColors.legendColor;
-            state.chartLine.options.layout.padding = originalPadding; // Przywracamy oryginalny padding
-            state.chartLine.options.scales.x.offset = false; // Przywracamy domyślny offset
-            state.chartLine.options.responsive = true; // Przywracamy responsywność
-            state.chartLine.options.maintainAspectRatio = true; // Przywracamy proporcje
             state.chartLine.update();
     
             function getBase64ImageFromUrl(url) {
@@ -2262,7 +2233,7 @@
                                 margin: [14.17, 0, 65.19, 0],
                                 alignment: 'center'
                             },
-                            { text: footerNoteText, style: 'footerNote', margin: [14.17, 5, 65.19, 10], pageMargins: [14.17, 60, 14.17, 20]  }
+                            { text: footerNoteText, style: 'footerNote', margin: [14.17, 5, 65.19, 10] }
                         ] : []),
                         {
                             stack: [
@@ -2270,11 +2241,17 @@
                                     text: "Wykres liniowy wartości lokaty w czasie", 
                                     style: 'sectionHeader', 
                                     alignment: 'center', 
-                                    margin: [0, 10, 0, 5] // Marginesy wewnętrzne w stack
+                                    margin: [0, 20, 0, 10] // Marginesy wewnętrzne w stack
                                 },
-                                { image: lineChartImage, width: 500, height: 250, alignment: 'center', margin: [0, 5, 0, 0] }
+                                { 
+                                    image: lineChartImage, 
+                                    width: 515.92, 
+                                    height: 250, 
+                                    alignment: 'center',
+                                    margin: [0, 0, 0, 20] // Marginesy wewnętrzne w stack
+                                }
                             ],
-                            margin: [14.17, 5, 65.19, 10], // Marginesy zewnętrzne stack, zgodne z tabelą
+                            margin: [74.17, 5, 65.19, 10], // Marginesy zewnętrzne stack, zgodne z tabelą
                             pageBreak: tableData.length > 10 && !isHarmonogramCollapsed ? 'before' : 'none'
                         }
                     ],
