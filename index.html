@@ -2089,8 +2089,8 @@
         const columnWidths = calculateColumnWidths();
         const lineChartCanvas = document.getElementById("lokatyChartLine");
     
-        // Ustawienie szerokości canvasu na 500 pikseli, tak jak w działającym kodzie
-        const chartWidth = 500;
+        // Ustawienie szerokości canvasu
+        const chartWidth = 536.94; // Szerokość tabeli (566.94) minus 15 punktów z każdej strony
         const chartHeight = 250;
         lineChartCanvas.width = chartWidth;
         lineChartCanvas.height = chartHeight;
@@ -2100,6 +2100,25 @@
         state.chartLine.options.maintainAspectRatio = false; // Wyłączamy proporcje
         state.chartLine.canvas.width = chartWidth;
         state.chartLine.canvas.height = chartHeight;
+    
+        // Zwiększenie paddingu, aby zmieścić etykiety i legendę
+        const originalPadding = state.chartLine.options.layout.padding || {};
+        state.chartLine.options.layout.padding = {
+            left: 50, // Większy padding z lewej, aby zmieścić etykiety osi Y
+            right: 20, // Padding z prawej
+            top: 30, // Padding u góry, aby zmieścić legendę
+            bottom: 20 // Padding na dole, aby zmieścić etykiety osi X
+        };
+    
+        // Ustawienie zakresu danych na osi X, aby linie zaczynały się i kończyły w odpowiednich miejscach
+        const originalScales = state.chartLine.options.scales;
+        const dataLength = state.harmonogramData.length;
+        state.chartLine.options.scales.x = {
+            ...state.chartLine.options.scales.x,
+            min: -0.5, // Zaczynamy pół jednostki przed pierwszym okresem
+            max: dataLength - 0.5, // Kończymy pół jednostki po ostatnim okresie
+            offset: false // Wyłączamy offset, aby precyzyjnie kontrolować zakres
+        };
     
         const originalColors = {
             xGridColor: state.chartLine.options.scales.x.grid.color,
@@ -2127,6 +2146,7 @@
         requestAnimationFrame(() => {
             const lineChartImage = lineChartCanvas.toDataURL("image/png");
     
+            // Przywracanie oryginalnych ustawień Chart.js
             state.chartLine.options.scales.x.grid.color = originalColors.xGridColor;
             state.chartLine.options.scales.y.grid.color = originalColors.yGridColor;
             state.chartLine.options.scales.x.grid.borderColor = originalColors.xGridBorderColor;
@@ -2136,8 +2156,10 @@
             state.chartLine.options.scales.x.ticks.color = originalColors.xTicksColor;
             state.chartLine.options.scales.y.ticks.color = originalColors.yTicksColor;
             state.chartLine.options.plugins.legend.labels.color = originalColors.legendColor;
-            state.chartLine.options.responsive = true; // Przywracamy responsywność
-            state.chartLine.options.maintainAspectRatio = true; // Przywracamy proporcje
+            state.chartLine.options.layout.padding = originalPadding;
+            state.chartLine.options.scales = originalScales;
+            state.chartLine.options.responsive = true;
+            state.chartLine.options.maintainAspectRatio = true;
             state.chartLine.update();
     
             function getBase64ImageFromUrl(url) {
@@ -2258,10 +2280,10 @@
                         },
                         { 
                             image: lineChartImage, 
-                            width: 500, // Taka sama szerokość jak w działającym kodzie
+                            width: 536.94, // Szerokość tabeli minus 15 punktów z każdej strony
                             height: 250, 
                             alignment: 'center',
-                            margin: [0, 5, 0, 0] // Takie same marginesy jak w działającym kodzie
+                            margin: [29.17, 5, 29.17, 0] // 14.17 + 15 z każdej strony
                         }
                     ],
                     styles: {
